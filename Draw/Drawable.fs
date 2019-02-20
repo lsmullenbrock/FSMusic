@@ -139,24 +139,6 @@ let assignYCoords measure =
         | NoClef ->
             Basic.errMsg "Attempted to assign a Y coord to a Pitch with a None clef!"
             initY
-    
-    (*
-    from MEvent.kt
-
-    if (y > parent!!.bottomY + h / 2) { // below the staff
-        var currentY = parent!!.bottomY
-        while (currentY < y - h / 2) {
-            currentY += SizeConst.measureSpaceYIncrement
-            temp.add(currentY)
-        }
-    } else if (y < parent!!.y) { // above the staff
-        var currentY = parent!!.y
-        while (currentY > y + h) {
-            currentY -= SizeConst.measureSpaceYIncrement
-            temp.add(currentY)
-        }
-    }
-    *)
 
     let createDrawableLedgerLine x y w =
         {event=LedgerLineEvent;geom=createGeom x y w 0.}
