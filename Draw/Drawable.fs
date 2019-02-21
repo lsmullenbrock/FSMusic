@@ -23,6 +23,8 @@ type DrawableStaff =
 
 //default sizes
 let defaultGeom = {x=0.;y=0.;w=0.;h=0.}
+let defaultDrawableMeasure = {dEvents=[];geom=defaultGeom}
+let defaultDrawableStaff = {measures=[];geom=defaultGeom}
 
 //pitches
 let wholeNoteWidth, wholeNoteHeight = MusResources.wholeNoteheadWidthDefault, MusResources.wholeNoteheadHeightDefault
@@ -90,7 +92,7 @@ let private setAllDEventSizes measure =
     |> fun dList -> {measure with dEvents=dList}
 
 /// Attempts to assign x-coords to a DrawableEvent list
-let assignXCoords measure =
+let assignEventXCoords (measure:DrawableMeasure) =
     let initialX = measure.geom.x
     let rec xLoop resultList prevXPos prevWidth kerning (eventList:DrawableEvent list) =
         match eventList with
@@ -106,7 +108,7 @@ let assignXCoords measure =
     |> fun dList -> {measure with dEvents=dList}
 
 /// Attempts to assign y-coords to a DrawableEvent list
-let assignYCoords prevClef measure =
+let assignEventYCoords prevClef (measure:DrawableMeasure) =
     let initialY = measure.geom.y
     //let measureWidth = measure.geom.x
     let measureMidpointY = (measure.geom.y + measure.geom.h) / 2.
@@ -148,7 +150,7 @@ let assignYCoords prevClef measure =
         {event=LedgerLineEvent;geom=createGeom x y w 0.}
 
     /// Creates ledger line.
-    let createLedgerLines measure (p:DrawableEvent) pitchTop =
+    let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
         let mutable temp:DrawableEvent list = []
         let mTop = measure.geom.y
         let mBottom = mTop + measure.geom.h
@@ -216,8 +218,8 @@ let assignYCoords prevClef measure =
 /// Aligns events according to where they fall in the measure.
 let assignGeometries clef =
     setAllDEventSizes
-    >> assignXCoords
-    >> (assignYCoords clef)
+    >> assignEventXCoords
+    >> (assignEventYCoords clef)
 
 /// Creates DrawableMeasure out of given Measure.
 let createDrawableMeasure initialClef measure x y w h =
@@ -232,3 +234,16 @@ let createDrawableMeasure initialClef measure x y w h =
     else
         resultMeasure
 
+/// Creates DrawableStaff for a given Staff and assigns geometries 
+let createDrawableStaff (measures:DrawableMeasure list) x y w h =
+    if measures.Length = 0  then
+        Basic.errMsg "No measures given for createDrawableStaff"
+        //return
+        defaultDrawableStaff
+    else if measures.Head.dEvents.Length = 0 then
+        Basic.errMsg "First measure is empty given to createDrawableStaff"
+        //return
+        defaultDrawableStaff
+    else
+        //logic
+        defaultDrawableStaff
