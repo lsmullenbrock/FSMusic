@@ -1,7 +1,6 @@
 ﻿module Drawable
 
 open MusicBase
-
 /// Holds geometry data for drawble objects
 type MusGeom =
     { x: float
@@ -17,8 +16,14 @@ type DrawableMeasure =
     { dEvents: DrawableEvent list
       geom: MusGeom }
 
+/// DrawableStaff is a record of DrawableMeasure list and MusGeom
+type DrawableStaff =
+    { measures: DrawableMeasure list
+      geom: MusGeom }
+
 //default sizes
-let private defaultGeom = {x=0.;y=0.;w=0.;h=0.}
+let defaultGeom = {x=0.;y=0.;w=0.;h=0.}
+
 //pitches
 let wholeNoteWidth, wholeNoteHeight = MusResources.wholeNoteheadWidthDefault, MusResources.wholeNoteheadHeightDefault
 let halfNoteWidth, halfNoteHeight = MusResources.halfNoteheadWidthDefault, MusResources.halfNoteheadHeightDefault
@@ -87,7 +92,6 @@ let private setAllDEventSizes measure =
 /// Attempts to assign x-coords to a DrawableEvent list
 let assignXCoords measure =
     let initialX = measure.geom.x
-    let kerning = MusResources.kerning //@DECOUPLE
     let rec xLoop resultList prevXPos prevWidth kerning (eventList:DrawableEvent list) =
         match eventList with
         | hd::tl ->
@@ -102,11 +106,11 @@ let assignXCoords measure =
     |> fun dList -> {measure with dEvents=dList}
 
 /// Attempts to assign y-coords to a DrawableEvent list
-let assignYCoords measure =
+let assignYCoords prevClef measure =
     let initialY = measure.geom.y
     //let measureWidth = measure.geom.x
     let measureMidpointY = (measure.geom.y + measure.geom.h) / 2.
-    let mutable currentClef = Clef.NoClef
+    let mutable currentClef = prevClef
     let mutable ledgerLines : DrawableEvent list = []
 
     /// Checks if clef should be updated
@@ -189,7 +193,10 @@ let assignYCoords measure =
                     match c with
                     | Treble ->
                         initY - trebleClefYOffset
+                    | Bass ->
+                        initY
                     | _ ->
+                        Basic.errMsg "Uncovered clef hit in assignYCoords.yLoop: %A" c
                         initY
                 | TimeSigEvent _ ->
                     Basic.errMsg "Need to implement TimeSigEvent assignYCoords in DrawMusic!"
@@ -207,15 +214,15 @@ let assignYCoords measure =
     |> fun dList -> {measure with dEvents = dList@ledgerLines}
 
 /// Aligns events according to where they fall in the measure.
-let assignGeometries =
+let assignGeometries clef =
     setAllDEventSizes
     >> assignXCoords
-    >> assignYCoords
+    >> (assignYCoords clef)
 
 /// Creates DrawableMeasure out of given Measure.
-let createDrawableMeasure measure x y w h =
+let createDrawableMeasure initialClef measure x y w h =
     let dEvents = measure.events |> List.map createDrawableEvent
-    let resultMeasure = {dEvents=dEvents; geom={x=x;y=y;w=w;h=h}} |> assignGeometries
+    let resultMeasure = {dEvents=dEvents; geom={x=x;y=y;w=w;h=h}} |> (assignGeometries initialClef)
     let finalX = 
         List.last resultMeasure.dEvents
         |> fun e -> e.geom.x + e.geom.w
@@ -224,3 +231,4 @@ let createDrawableMeasure measure x y w h =
         {resultMeasure with geom={resultMeasure.geom with w=newWidth}}
     else
         resultMeasure
+

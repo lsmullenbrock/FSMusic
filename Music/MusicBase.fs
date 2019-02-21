@@ -107,12 +107,21 @@ let createMultipleEvents (items:obj list) = List.map createEvent items
 /// Helper func to unbox event into basic type.
 /// Must be careful to properly cast recieving let binding/etc.
 let unboxEvent (event:MeasureEvent) = unbox event
+
+
 /// Type is meant to be simple/"dumb".
 type Measure = { events: MeasureEvent list }
 /// Adds single event to given measure
 let addEvent (measure:Measure) (event:MeasureEvent) = {measure with events=(measure.events@[event])}
 /// Adds more than one event to a measure
 let addMultipleEvents measure events = List.fold addEvent measure events
+
+/// Staves are simply Measure lists
+type Staff = Measure list
+/// Add single measure to Staff
+let addMeasure staff measure : Staff = staff@[measure]
+/// Add multiple measures to staff
+let addMultipleMeasures staff measures : Staff = List.fold addMeasure staff measures
 
 /// Helper func to get ordinal of a Note.
 let inline getNoteOrdinal note = 
@@ -121,8 +130,9 @@ let inline getNoteOrdinal note =
 /// Used to calculate the actual interval between two pitches.
 /// Negative result means p2 is below p1.
 let inline interval p1 p2 =
-    let p1Position = (ordinal p1.note) + p1.octave * 7 + 1
-    let p2Position = (ordinal p2.note) + p2.octave * 7 + 1
+    let distFromC0 p = (ordinal p.note) + p.octave * 7 + 1
+    let p1Position = distFromC0 p1
+    let p2Position = distFromC0 p2
     let dist = p1Position - p2Position
     if dist >= 0 then
         dist + 1
@@ -144,3 +154,4 @@ let defaultTimeSigEvent = createEvent defaultTimeSig
 
 let defaultMeasure = {events=[]}
 
+let defaultStaff = [defaultMeasure]
