@@ -3,12 +3,11 @@
 open System.Windows
 open System.Windows.Controls
 
-open DrawBase
+open Inker
 open MusicBase
 open Engraver
 open Drawable
 open System.Windows.Controls.Primitives
-open System
 
 //-----------------------------------TESTS---------------------------------------
 let test (canvas:Canvas) =
@@ -19,11 +18,11 @@ let test (canvas:Canvas) =
     let e3 = defaultPitchEvent
     let e4 = (Clef.Treble |> createEvent)
     let e5 = defaultPitchEvent
-    let e6 = createEvent (createPitch Note.D None 5 Value.Quarter false false)
+    let e6 = createEvent (createRest Value.Quarter false)
     let e7 = createEvent (createPitch Note.D None 3 Value.Quarter false false)
     
     let m1 = addMultipleEvents defaultMeasure [e1;e2;e7;e3;e4;e5;e6]
-    let dMeasure1 = createDrawableMeasure m1 50. 50. MusResources.measureWidthDefault MusResources.measureHeightDefault
+    let dMeasure1 = createDrawableMeasure Clef.Treble m1 50. 50. MusResources.measureWidthDefault MusResources.measureHeightDefault
     engraveMeasureAndEvents canvas dMeasure1
 
 //let test (canvas:Canvas) =

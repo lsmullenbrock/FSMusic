@@ -108,11 +108,16 @@ let createMultipleEvents (items:obj list) = List.map createEvent items
 /// Must be careful to properly cast recieving let binding/etc.
 let unboxEvent (event:MeasureEvent) = unbox event
 
+/// Helper func for clefs
+let isClef (item:obj) =
+    match item with
+    | :? Clef -> true
+    | _ -> false
 
 /// Type is meant to be simple/"dumb".
-type Measure = { events: MeasureEvent list }
+type Measure = MeasureEvent list 
 /// Adds single event to given measure
-let addEvent (measure:Measure) (event:MeasureEvent) = {measure with events=(measure.events@[event])}
+let addEvent (measure:Measure) (event:MeasureEvent) = measure@[event]
 /// Adds more than one event to a measure
 let addMultipleEvents measure events = List.fold addEvent measure events
 
@@ -122,15 +127,11 @@ type Staff = Measure list
 let addMeasure staff measure : Staff = staff@[measure]
 /// Add multiple measures to staff
 let addMultipleMeasures staff measures : Staff = List.fold addMeasure staff measures
-
-/// Helper func to get ordinal of a Note.
-let inline getNoteOrdinal note = 
-    match note with|Note.C->1|Note.D->2|Note.E->3|Note.F->4|Note.G->5|Note.A->6|Note.B->7|n->Basic.errMsg "getNoteOrdinal got argument: %A" n;0
-
+/// Calculates interval from C0 (lowest Midi note)
+let distFromC0 p = (ordinal p.note) + p.octave * 7 + 1
 /// Used to calculate the actual interval between two pitches.
 /// Negative result means p2 is below p1.
 let inline interval p1 p2 =
-    let distFromC0 p = (ordinal p.note) + p.octave * 7 + 1
     let p1Position = distFromC0 p1
     let p2Position = distFromC0 p2
     let dist = p1Position - p2Position
@@ -152,6 +153,6 @@ let defaultClefEvent = createEvent defaultClef
 let defaultKeyEvent = createEvent defaultKey
 let defaultTimeSigEvent = createEvent defaultTimeSig
 
-let defaultMeasure = {events=[]}
+let defaultMeasure:Measure = []
 
-let defaultStaff = [defaultMeasure]
+let defaultStaff:Staff = [defaultMeasure]

@@ -222,8 +222,8 @@ let assignGeometries clef =
     >> (assignEventYCoords clef)
 
 /// Creates DrawableMeasure out of given Measure.
-let createDrawableMeasure initialClef measure x y w h =
-    let dEvents = measure.events |> List.map createDrawableEvent
+let createDrawableMeasure initialClef (measure:Measure) x y w h =
+    let dEvents = measure |> List.map createDrawableEvent
     let resultMeasure = {dEvents=dEvents; geom={x=x;y=y;w=w;h=h}} |> (assignGeometries initialClef)
     let finalX = 
         List.last resultMeasure.dEvents
@@ -234,16 +234,47 @@ let createDrawableMeasure initialClef measure x y w h =
     else
         resultMeasure
 
+/// Tries to find the lastmost clef in a measure, returns an option (Some cleff/None)
+let getPrevClef (measure:Measure) = measure |> List.tryFindBack(isClef)
+
+/// Ensures given Staff is not empty or is malformed, etc.
+let verifyStaff (staff:Staff) = 
+        if staff.Length = 0  then
+            Basic.errMsg "No measures given for createDrawableStaff"
+            false
+        else if staff.Head.Length = 0 then
+            Basic.errMsg "First measure is empty given to createDrawableStaff"
+            false
+        else if not (isClef staff.Head.Head) then
+            Basic.errMsg "First item in Staff must be Clef"
+            false
+        else
+            true
+
+/// Helper func to create DrawableStaff
+let private createDrawableMeasures (staff:Staff) x y w h : DrawableMeasure list =
+        let mutable initialClef:Clef = staff.Head.Head |> unboxEvent
+        //return
+        [
+            for measure in staff do
+                let dMeasure = createDrawableMeasure initialClef measure x y (w / (staff.Length|>float)) h
+                match (getPrevClef measure) with
+                | Some c -> 
+                    initialClef <- unboxEvent c
+                | None ->
+                    initialClef <- initialClef
+                yield dMeasure
+        ]
+
 /// Creates DrawableStaff for a given Staff and assigns geometries 
-let createDrawableStaff (measures:DrawableMeasure list) x y w h =
-    if measures.Length = 0  then
-        Basic.errMsg "No measures given for createDrawableStaff"
-        //return
-        defaultDrawableStaff
-    else if measures.Head.dEvents.Length = 0 then
-        Basic.errMsg "First measure is empty given to createDrawableStaff"
-        //return
-        defaultDrawableStaff
-    else
-        //logic
-        defaultDrawableStaff
+let createDrawableStaff (staff:Staff) x y w h : DrawableStaff =
+    let measures = 
+        match verifyStaff staff with
+        | true -> 
+            createDrawableMeasures staff x y w h
+        | _ -> 
+            Basic.errMsg "verifyStaff failed for given staff!"
+            []
+    //return
+    {measures=measures;geom=createGeom x y w h}
+    
