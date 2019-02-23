@@ -3,7 +3,6 @@
 open System.Windows
 open System.Windows.Controls
 
-open Inker
 open MusicBase
 open Engraver
 open Drawable
@@ -12,6 +11,8 @@ open System.Windows.Controls.Primitives
 //-----------------------------------TESTS---------------------------------------
 let test (canvas:Canvas) =
     canvas.Children.Clear()
+
+    let engraver = new Engraver(canvas)
 
     let e1 = (Clef.Bass |> createEvent)
     let e2 = defaultTimeSigEvent
@@ -23,7 +24,7 @@ let test (canvas:Canvas) =
     
     let m1 = addMultipleEvents defaultMeasure [e1;e2;e7;e3;e4;e5;e6]
     let dMeasure1 = createDrawableMeasure Clef.Treble m1 50. 50. MusResources.measureWidthDefault MusResources.measureHeightDefault
-    engraveMeasureAndEvents canvas dMeasure1
+    engraver.engraveMeasureAndEvents dMeasure1
 
 //let test (canvas:Canvas) =
 //    canvas.Children.Clear()

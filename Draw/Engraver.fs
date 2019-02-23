@@ -6,62 +6,62 @@ open MusicBase
 open Drawable
 open Inker
 
+/// Essentially a wrapper for the Inker, the Engraver makes decisions and tells the Inker what to draw.
 type Engraver(canvas:Canvas) =
+    /// Engraver tells Inker what to do
     member private __.inker = new Inker(canvas)
 
     /// Draws given pitch. Does not handle beaming.
-    member this.engravePitchEvent (geometry:MusGeom) (pitch:Pitch) = 
+    member private this.engravePitchEvent (geometry:MusGeom) (pitch:Pitch) = 
         let {x=x;y=y;w=w;h=h} = geometry
         match pitch.value with
         | Value.Whole ->
-            this.inker.drawWholeNotehead x y w h
+            this.inker.inkWholeNotehead x y w h
         | Value.Half ->
-            this.inker.drawHalfNoteheadPitch x y w h MusResources.stemLengthDefault
+            this.inker.inkHalfNoteheadPitch x y w h MusResources.stemLengthDefault
         | _ ->
-            this.inker.drawFilledNoteheadPitch x y w h MusResources.stemLengthDefault
+            this.inker.inkFilledNoteheadPitch x y w h MusResources.stemLengthDefault
 
     /// Draw given rest. @TODO: Implement. Add handling for 8th and shorter rests.
-    member this.engraveRestEvent geometry (rest:Rest) =
+    member private this.engraveRestEvent geometry (rest:Rest) =
         let {x=x;y=y;w=w;h=h} = geometry
         match rest.value with
         | Value.Whole ->
-            this.inker.drawWholeRest x y w h
+            this.inker.inkWholeRest x y w h
         | Value.Half ->
-            this.inker.drawHalfRest x y w h
+            this.inker.inkHalfRest x y w h
         | Value.Quarter ->
-            this.inker.drawQuarterRest x y w h
+            this.inker.inkQuarterRest x y w h
         | _ ->
             Basic.errMsg "engraveRestEvent does not currenlty handle %A Value rests! :(" rest.value
             ()
     /// Engraves TimeSig at given location
-    member this.engraveTimeSigEvent geometry timeSig = 
+    member private this.engraveTimeSigEvent geometry timeSig = 
         let {x=x;y=y;w=w;h=h} = geometry
-        this.inker.drawTimeSig (timeSig.numerator|>string) (timeSig.denominator|>int|>string) x y w h
+        this.inker.inkTimeSig (timeSig.numerator|>string) (timeSig.denominator|>int|>string) x y w h
 
     ///@TODO: Implement
-    member this.engraveKeyEvent geometry keyEvent = 
+    member private this.engraveKeyEvent geometry keyEvent = 
         Basic.errMsg "Engraver.engraveKeyEvent is not currently implemented"
         ()
 
     /// Engraves a given clef at a given location
-    member this.engraveClefEvent geometry clef =
+    member private this.engraveClefEvent geometry clef =
         let {x=x;y=y;w=w;h=h} = geometry
         match clef with
         | Treble ->
-            this.inker.drawTrebleClef x y w h
+            this.inker.inkTrebleClef x y w h
         | Bass ->
-            this.inker.drawBassClef x y w h
+            this.inker.inkBassClef x y w h
         | NoClef ->
             Basic.errMsg "Engraver.engraveClefEvent hit NoClef match case given event: %A" clef
     /// Engraves a single ledger line at a givent location
     member private this.engraveLedgerLine geometry =
         let {x=x;y=y;w=w} = geometry
-        this.inker.drawLedgerLine x y w 
-    
+        this.inker.inkLedgerLine x y w 
 
-    /// Should be handed a Canvas to then generate an easier-to-use function. 
     /// (Attempts to) draw correct event.
-    member private this.engraveEvent (dEvent:DrawableEvent) : unit =
+    member private this.engraveEvent (dEvent:DrawableEvent) =
         let g = dEvent.geom
         match dEvent.event with
         | PitchEvent p ->
@@ -82,7 +82,7 @@ type Engraver(canvas:Canvas) =
     /// Draws given DrawableMeasure to given canvas, but does not draw any events.
     member this.engraveMeasure (dMeasure:DrawableMeasure) =
         let {x=x;y=y;h=h;w=w} = dMeasure.geom
-        this.inker.drawMeasure x y w h
+        this.inker.inkMeasure x y w h
 
     /// Draws a DrawableMeasure and its contents to a given Canvas.
     member this.engraveMeasureAndEvents (dMeasure:DrawableMeasure) =

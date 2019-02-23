@@ -1,4 +1,5 @@
 ﻿[<AutoOpen>]
+///General utilities for general use.
 module Utils
 
 open System
@@ -17,4 +18,3 @@ let rec cast<'a> (lst:obj list) =
         | :? 'a as a -> a::(cast tl)
         | _ -> cast tl
     | _ -> []
-

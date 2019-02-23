@@ -69,6 +69,7 @@
     <Compile Include="Music\MusResources.fs" />
     <Compile Include="Music\MusicBase.fs" />
     <Compile Include="Draw\Drawable.fs" />
+    <Compile Include="Draw\DrawUtils.fs" />
     <Compile Include="Draw\Inker.fs" />
     <Compile Include="Draw\Engraver.fs" />
     <Compile Include="MusWindow\MusWindow.fs" />

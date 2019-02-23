@@ -120,21 +120,14 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
         if c <> currentClef then 
             currentClef <- c
 
-    /// Used to calculate value interval in staff lines/spaces between two pitches.
+    /// Used to calculate value interval in staff lines and spaces between two pitches.
     /// Negative distance means p1 is below p2.
-    let inline staffInterval p1 p2 =
-        let p1Position = (ordinal p1.note) + p1.octave * 7 + 1
-        let p2Position = (ordinal p2.note) + p2.octave * 7 + 1
-        let dist = p1Position - p2Position
-        dist
+    let inline staffInterval p1 p2 = (distFromC0 p1) - (distFromC0 p2)
 
     /// Gets the Y coord of a pitch
     let getPitchYCoords initY curClef pitch =
         let staffDist = float<|staffInterval defaultPitch pitch
-        printfn "staffDist=%A" staffDist
-        //printfn "pitch = %A\n defaultPitch = %A\n staffDist=%A" pitch defaultPitch staffDist
         let dist = staffDist * pitchYSpacing
-        printfn "dist=%A" dist
         match curClef with
         | Treble -> //count UP from MidC
             let midCY = initY + pitchYSpacing * 9.
@@ -146,10 +139,11 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
             Basic.errMsg "Attempted to assign a Y coord to a Pitch with a None clef!"
             initY
 
+    /// Creates single LedgerLineEvent at given location
     let createDrawableLedgerLine x y w =
         {event=LedgerLineEvent;geom=createGeom x y w 0.}
 
-    /// Creates ledger line.
+    /// Creates multiple ledger lines.
     let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
         let mutable temp:DrawableEvent list = []
         let mTop = measure.geom.y
@@ -273,7 +267,7 @@ let createDrawableStaff (staff:Staff) x y w h : DrawableStaff =
         | true -> 
             createDrawableMeasures staff x y w h
         | _ -> 
-            Basic.errMsg "verifyStaff failed for given staff!"
+            Basic.errMsg "verifyStaff failed for given staff: %A" staff
             []
     //return
     {measures=measures;geom=createGeom x y w h}
