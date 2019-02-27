@@ -3,10 +3,10 @@
 open MusicBase
 /// Holds geometry data for drawble objects
 type MusGeom =
-    { x: float
-      y: float
-      w: float
-      h: float }
+    { mutable x: float
+      mutable y: float
+      mutable w: float
+      mutable h: float }
 /// Couples Geometry type with MeasureEvent type.
 type DrawableEvent =
     { event: MeasureEvent
@@ -83,6 +83,8 @@ let private setDEventSize dEvent =
             Basic.errMsg "Error encountered! Error message: %A" (e.ToString())
             0., 0.
     //return
+    dEvent.geom.w <- w
+    dEvent.geom.h <- h
     {dEvent with geom={x=0.;y=0.;w=w;h=h}}
 
 /// Maps setDEventSize over a list
@@ -97,10 +99,8 @@ let assignEventXCoords (measure:DrawableMeasure) =
     let rec xLoop resultList prevXPos prevWidth kerning (eventList:DrawableEvent list) =
         match eventList with
         | hd::tl ->
-            let currentX = prevXPos + prevWidth + kerning
-            let currentGeom = {hd.geom with x = currentX}
-            let result = {hd with geom = currentGeom}
-            xLoop (resultList@[result]) currentX hd.geom.w kerning tl 
+            hd.geom.x <- prevXPos + prevWidth + kerning
+            xLoop (resultList@[hd]) hd.geom.x hd.geom.w kerning tl 
         | _ ->
             resultList
     //return
@@ -145,25 +145,41 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
 
     /// Creates multiple ledger lines.
     let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
-        let mutable temp:DrawableEvent list = []
         let mTop = measure.geom.y
         let mBottom = mTop + measure.geom.h
         let x = p.geom.x - p.geom.w / 4.
         let w = ledgerLineWidth
-        // Below staff
-        if pitchTop > mBottom then
-            let mutable currentY = mBottom
-            while currentY < pitchTop + measureLineSpacing do
-                temp <- temp@[createDrawableLedgerLine x currentY w]
-                currentY <- currentY + measureLineSpacing
-        //above staff
-        else if pitchTop < mTop then
-            let mutable currentY = mTop
-            while currentY > pitchTop do
-                temp <- temp@[createDrawableLedgerLine x currentY w]
-                currentY <- currentY - measureLineSpacing
+
+        let result = 
+            // Below staff
+            if pitchTop > mBottom then
+                //Old method:
+                //let mutable currentY = mBottom
+                //while currentY < pitchTop + measureLineSpacing do
+                //    temp <- temp@[createDrawableLedgerLine x currentY w]
+                //    currentY <- currentY + measureLineSpacing
+                let diff = pitchTop - mBottom
+                let numLines = diff / measureLineSpacing
+                [0. ..numLines + 1.]
+                |> List.map(fun lineNum -> lineNum * measureLineSpacing + mBottom)
+                |> List.map(fun y -> createDrawableLedgerLine x y w)
+            //Above staff
+            else if pitchTop < mTop then
+                //Old method:
+                //let mutable currentY = mTop
+                //while currentY > pitchTop do
+                //    temp <- temp@[createDrawableLedgerLine x currentY w]
+                //    currentY <- currentY - measureLineSpacing
+                let diff = mTop - pitchTop
+                let numLines = diff / measureLineSpacing
+                [0. ..numLines]
+                |> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
+                |> List.map(fun y -> createDrawableLedgerLine x y w)
+            //No ledger lines needed
+            else
+                []
         //return
-        temp
+        result
                 
     /// Assigns y Coords to DEvents
     let rec yLoop resultList initY (eventList:DrawableEvent list) =
@@ -179,7 +195,6 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
                 | LedgerLineEvent ->
                     hd.geom.y
                 | RestEvent r ->
-                    Basic.errMsg "Need to implement RestEvent assignYCoords in DrawMusic!"
                     measureMidpointY
                 | KeyEvent k ->
                     Basic.errMsg "Need to implement KeyEvent assignYCoords in DrawMusic!"
@@ -200,9 +215,8 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
                 | ErrorEvent e ->
                     Basic.errMsg "ErrorEvent %A can't be assigned a location." e
                     0.
-            let geom = {hd.geom with y = y}
-            let result = {hd with geom = geom}
-            yLoop (resultList@[result]) initY tl
+            hd.geom.y <- y
+            yLoop (resultList@[hd]) initY tl
         | _ ->
             resultList
     //return
@@ -224,9 +238,8 @@ let createDrawableMeasure initialClef (measure:Measure) x y w h =
         |> fun e -> e.geom.x + e.geom.w
     if resultMeasure.geom.x + resultMeasure.geom.w <= finalX then
         let newWidth = finalX - resultMeasure.geom.x + kerning
-        {resultMeasure with geom={resultMeasure.geom with w=newWidth}}
-    else
-        resultMeasure
+        resultMeasure.geom.x <- newWidth
+    resultMeasure
 
 /// Tries to find the lastmost clef in a measure, returns an option (Some cleff/None)
 let getPrevClef (measure:Measure) = measure |> List.tryFindBack(isClef)

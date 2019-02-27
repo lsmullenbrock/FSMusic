@@ -4,13 +4,17 @@ open System.Windows
 open System.Windows.Shapes
 open System.Windows.Controls
 
+/// Class which only draws what it is told to draw.
 type Inker(canvas:Canvas) =
-    /// Canvas to draw objects on.
-    member private this.canvas = canvas
+
+    /// Direct clear of canvas
+    member __.clearCanvas () =
+        canvas.Children.Clear()
 
     /// Adds a UIElement to given Canvas.
     member inline private __.addElementToCanvas (elem:#UIElement) =
-        canvas.Children.Add(elem) |> ignore
+        canvas.Children.Add(elem) 
+        |> ignore
     
     /// Add a TextBlock to canvas at given location.
     /// @TODO does not work properly, troubleshoot offsetting
@@ -117,13 +121,16 @@ type Inker(canvas:Canvas) =
         |> this.inkLine
 
     /// Draw a Quarter Rest
-    member this.inkQuarterRest x y w h = this.drawImageFromLocation ImageLocations.quarterRestImageLocation x y w h 
+    member this.inkQuarterRest x y w h = 
+        this.drawImageFromLocation ImageLocations.quarterRestImageLocation x y w h 
 
     /// Draw a Half Rest
-    member this.inkHalfRest x y w h = this.drawImageFromLocation ImageLocations.halfRestImageLocation x y w h 
+    member this.inkHalfRest x y w h = 
+        this.drawImageFromLocation ImageLocations.halfRestImageLocation x y w h 
 
     /// Draw a Whole Rest
-    member this.inkWholeRest  x y w h = this.drawImageFromLocation ImageLocations.wholeRestImageLocation x y w h 
+    member this.inkWholeRest  x y w h = 
+        this.drawImageFromLocation ImageLocations.wholeRestImageLocation x y w h 
 
     /// Draw TimeSig event
     member this.inkTimeSig n d x y w h =

@@ -45,7 +45,7 @@ type TimeSig =
     { numerator: int
       denominator: Value }
 /// Clef union.
-/// The "None" clef is currently used for preventing drawing errors.
+/// The "NoClef" clef is currently used for preventing drawing errors.
 type Clef =
     | Treble
     | Bass

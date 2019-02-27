@@ -9,30 +9,21 @@ open Drawable
 open System.Windows.Controls.Primitives
 
 //-----------------------------------TESTS---------------------------------------
-let test (canvas:Canvas) =
-    canvas.Children.Clear()
 
-    let engraver = new Engraver(canvas)
+let test (engraver:Engraver) =
+    engraver.clearCanvas()
 
-    let e1 = (Clef.Bass |> createEvent)
+    let e1 = (Bass |> createEvent)
     let e2 = defaultTimeSigEvent
     let e3 = defaultPitchEvent
-    let e4 = (Clef.Treble |> createEvent)
+    let e4 = (Treble |> createEvent)
     let e5 = defaultPitchEvent
     let e6 = createEvent (createRest Value.Quarter false)
     let e7 = createEvent (createPitch Note.D None 3 Value.Quarter false false)
     
     let m1 = addMultipleEvents defaultMeasure [e1;e2;e7;e3;e4;e5;e6]
-    let dMeasure1 = createDrawableMeasure Clef.Treble m1 50. 50. MusResources.measureWidthDefault MusResources.measureHeightDefault
+    let dMeasure1 = createDrawableMeasure Treble m1 50. 50. MusResources.measureWidthDefault MusResources.measureHeightDefault
     engraver.engraveMeasureAndEvents dMeasure1
-
-//let test (canvas:Canvas) =
-//    canvas.Children.Clear()
-//    drawBassClef canvas 100. 100. MusResources.bassClefWidthDefault MusResources.bassClefHeightDefault
-//    drawMeasure canvas 100. 100. MusResources.measureWidthDefault MusResources.measureHeightDefault
-//    drawFilledNoteheadPitch canvas 200. 100. MusResources.filledNoteheadWidthDefault MusResources.filledNoteheadHeightDefault MusResources.stemLengthDefault
-//    drawHalfNoteheadPitch canvas 200. 100. MusResources.filledNoteheadWidthDefault MusResources.filledNoteheadHeightDefault MusResources.stemLengthDefault
-//    drawWholeNoteheadPitch canvas 200. 100. MusResources.wholeNoteheadWidthDefault MusResources.wholeNoteheadHeightDefault
 
 //-------------------------------------------------------------------------------
 
@@ -52,6 +43,7 @@ let makeWindow width height =
         )
 
     let canvas = new Canvas()
+    let engraver = new Engraver(canvas)
 
     let buttonHeight = 20.
     let buttonWidth = width / 10.
@@ -73,12 +65,13 @@ let makeWindow width height =
 
     let clickEvent_testCanvas _ =
         printfn "Button clicked."
-        test canvas
+        test engraver
+
     let drawExerciseButton = createButton "Draw Exercise" (clickEvent_testCanvas) "Genderate and Draw new reading exercise."
     drawExerciseButton.IsDefault <- true
 
     let clickEvent_clear _ = 
-        canvas.Children.Clear()
+        engraver.clearCanvas()
     let clearButton = createButton "Clear Canvas" (clickEvent_clear) "Clear the Canvas."
     clearButton.IsCancel <- true
 
@@ -120,7 +113,7 @@ let makeWindow width height =
     let (sList:UIElement list) = [label; slider]
     addControlsToPanel sliderPanel sList
 
-    let (mainControls:Panel list) = [sliderPanel; mainButtonPanel; canvas]
+    let (mainControls:Panel list) = [mainButtonPanel; canvas]
     addControlsToPanel mainPanel mainControls
 
     window.Content <- mainPanel

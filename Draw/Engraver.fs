@@ -11,6 +11,8 @@ type Engraver(canvas:Canvas) =
     /// Engraver tells Inker what to do
     member private __.inker = new Inker(canvas)
 
+    member this.clearCanvas () = this.inker.clearCanvas()
+
     /// Draws given pitch. Does not handle beaming.
     member private this.engravePitchEvent (geometry:MusGeom) (pitch:Pitch) = 
         let {x=x;y=y;w=w;h=h} = geometry

@@ -65,7 +65,7 @@
     <None Include="images\whole_note.png" />
     <None Include="images\whole_rest.png" />
     <Compile Include="Utils\Basic.fs" />
-    <Compile Include="Utils\Utils.fs" />
+    <Compile Include="Utils\TypeUtils.fs" />
     <Compile Include="Music\MusResources.fs" />
     <Compile Include="Music\MusicBase.fs" />
     <Compile Include="Draw\Drawable.fs" />
