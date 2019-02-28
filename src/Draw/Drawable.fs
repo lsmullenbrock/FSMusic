@@ -85,7 +85,7 @@ let private setDEventSize dEvent =
     //return
     dEvent.geom.w <- w
     dEvent.geom.h <- h
-    {dEvent with geom={x=0.;y=0.;w=w;h=h}}
+    dEvent
 
 /// Maps setDEventSize over a list
 let private setAllDEventSizes measure =
@@ -116,12 +116,13 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
     let mutable ledgerLines : DrawableEvent list = []
 
     /// Checks if clef should be updated
+    /// @Refactor ?
     let checkClefUpdate c =
         if c <> currentClef then 
             currentClef <- c
 
     /// Used to calculate value interval in staff lines and spaces between two pitches.
-    /// Negative distance means p1 is below p2.
+    /// Negative distance means p1 is below p2 on the staff.
     let inline staffInterval p1 p2 = (distFromC0 p1) - (distFromC0 p2)
 
     /// Gets the Y coord of a pitch
@@ -239,6 +240,7 @@ let createDrawableMeasure initialClef (measure:Measure) x y w h =
     if resultMeasure.geom.x + resultMeasure.geom.w <= finalX then
         let newWidth = finalX - resultMeasure.geom.x + kerning
         resultMeasure.geom.x <- newWidth
+    //return
     resultMeasure
 
 /// Tries to find the lastmost clef in a measure, returns an option (Some cleff/None)
@@ -259,7 +261,7 @@ let verifyStaff (staff:Staff) =
             true
 
 /// Helper func to create DrawableStaff
-let private createDrawableMeasures (staff:Staff) x y w h : DrawableMeasure list =
+let private createVerifiedStaff (staff:Staff) x y w h : DrawableMeasure list =
         let mutable initialClef:Clef = staff.Head.Head |> unboxEvent
         //return
         [
@@ -269,7 +271,7 @@ let private createDrawableMeasures (staff:Staff) x y w h : DrawableMeasure list 
                 | Some c -> 
                     initialClef <- unboxEvent c
                 | None ->
-                    initialClef <- initialClef
+                    () //do nothing
                 yield dMeasure
         ]
 
@@ -278,7 +280,7 @@ let createDrawableStaff (staff:Staff) x y w h : DrawableStaff =
     let measures = 
         match verifyStaff staff with
         | true -> 
-            createDrawableMeasures staff x y w h
+            createVerifiedStaff staff x y w h
         | _ -> 
             Basic.errMsg "verifyStaff failed for given staff: %A" staff
             []
