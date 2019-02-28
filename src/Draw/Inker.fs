@@ -3,6 +3,7 @@
 open System.Windows
 open System.Windows.Shapes
 open System.Windows.Controls
+open Drawable
 
 /// Class which only draws what it is told to draw.
 type Inker(canvas:Canvas) =
@@ -121,7 +122,7 @@ type Inker(canvas:Canvas) =
         |> this.inkLine
 
     /// Draw a Quarter Rest
-    member this.inkQuarterRest x y w h = 
+    member this.inkQuarterRest x y w h =
         this.drawImageFromLocation ImageLocations.quarterRestImageLocation x y w h 
 
     /// Draw a Half Rest

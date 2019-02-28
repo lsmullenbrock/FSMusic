@@ -8,6 +8,13 @@ open Engraver
 open Drawable
 open System.Windows.Controls.Primitives
 
+
+/// Helper func to make adding elements easier.
+let addControlsToPanel (panel:#Panel) controlList = 
+    (List.map(fun b -> panel.Children.Add b |> ignore) controlList) 
+    |> ignore
+
+
 //-----------------------------------TESTS---------------------------------------
 
 let test (engraver:Engraver) =
@@ -26,11 +33,6 @@ let test (engraver:Engraver) =
     engraver.engraveMeasureAndEvents dMeasure1
 
 //-------------------------------------------------------------------------------
-
-/// Helper func to make adding elements easier.
-let addControlsToPanel (panel:#Panel) controlList = 
-    (List.map(fun b -> panel.Children.Add b |> ignore) controlList) 
-    |> ignore
 
 
 let makeWindow width height =

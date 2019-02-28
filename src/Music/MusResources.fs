@@ -61,7 +61,7 @@ let halfRestWidthDefault = wholeRestWidthDefault
 let halfRestHeightDefault = wholeRestHeightDefault
 
 let quarterRestWidthDefault = measureHeightDefault * 0.25 * SIZE_MULTIPLIER
-let quarterRestHeightDefault = measureHeightDefault * 0.35 * SIZE_MULTIPLIER
+let quarterRestHeightDefault = measureHeightDefault * 0.5 * SIZE_MULTIPLIER
 
 let eighthRestWidthDefault = measureHeightDefault * 0.05 * SIZE_MULTIPLIER
 let eightRestHeightDefault = measureHeightDefault * 0.10 * SIZE_MULTIPLIER

@@ -1,12 +1,13 @@
 ﻿module Drawable
 
 open MusicBase
+
 /// Holds geometry data for drawble objects
 type MusGeom =
-    { mutable x: float
-      mutable y: float
-      mutable w: float
-      mutable h: float }
+    { x: float
+      y: float
+      w: float
+      h: float }
 /// Couples Geometry type with MeasureEvent type.
 type DrawableEvent =
     { event: MeasureEvent
@@ -33,6 +34,10 @@ let filledNoteWidth, filledNoteHeight = MusResources.filledNoteheadWidthDefault,
 let ledgerLineWidth = MusResources.ledgerLineWidth
 let pitchYSpacing = MusResources.pitchYSpacing
 let measureLineSpacing = MusResources.measureLineSpacing
+//rests
+let quarterRestWidth, quarterRestHeight = MusResources.quarterRestWidthDefault, MusResources.quarterRestHeightDefault
+let halfRestWidth, halfRestHeight = MusResources.halfNoteheadWidthDefault, MusResources.halfRestHeightDefault
+let wholeRestWidth, wholeRestHeight = MusResources.wholeRestWidthDefault, MusResources.wholeRestHeightDefault
 //clefs
 let bassClefWidth, bassClefHeight = MusResources.bassClefWidthDefault, MusResources.bassClefHeightDefault
 let trebleClefWidth, trebleClefHeight = MusResources.trebleClefWidthDefault, MusResources.trebleClefHeightDefault
@@ -63,8 +68,16 @@ let private setDEventSize dEvent =
         | LedgerLineEvent ->
             ledgerLineWidth, 0.
         | RestEvent r ->
-            Basic.log "%A unhandled by createDrawableMeasureEvent currently" r
-            0., 0.
+            match r.value with
+            | Value.Quarter ->
+                quarterRestWidth, quarterRestHeight
+            | Value.Half ->
+                halfRestWidth, halfRestHeight
+            | Value.Whole ->
+                wholeRestWidth, wholeRestHeight
+            | _ ->
+                Basic.log "%A unhandled by createDrawableMeasureEvent currently" r
+                0., 0.
         | ClefEvent c ->
             match c with
             | Treble ->
@@ -82,10 +95,7 @@ let private setDEventSize dEvent =
         | ErrorEvent e ->
             Basic.errMsg "Error encountered! Error message: %A" (e.ToString())
             0., 0.
-    //return
-    dEvent.geom.w <- w
-    dEvent.geom.h <- h
-    dEvent
+    {dEvent with geom = {dEvent.geom with w=w; h=h}}
 
 /// Maps setDEventSize over a list
 let private setAllDEventSizes measure =
@@ -99,8 +109,9 @@ let assignEventXCoords (measure:DrawableMeasure) =
     let rec xLoop resultList prevXPos prevWidth kerning (eventList:DrawableEvent list) =
         match eventList with
         | hd::tl ->
-            hd.geom.x <- prevXPos + prevWidth + kerning
-            xLoop (resultList@[hd]) hd.geom.x hd.geom.w kerning tl 
+            let newX = prevXPos + prevWidth + kerning
+            let result = {hd with geom={hd.geom with x=newX}}
+            xLoop (resultList@[result]) result.geom.x result.geom.w kerning tl 
         | _ ->
             resultList
     //return
@@ -154,26 +165,16 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
         let result = 
             // Below staff
             if pitchTop > mBottom then
-                //Old method:
-                //let mutable currentY = mBottom
-                //while currentY < pitchTop + measureLineSpacing do
-                //    temp <- temp@[createDrawableLedgerLine x currentY w]
-                //    currentY <- currentY + measureLineSpacing
                 let diff = pitchTop - mBottom
                 let numLines = diff / measureLineSpacing
                 [0. ..numLines + 1.]
-                |> List.map(fun lineNum -> lineNum * measureLineSpacing + mBottom)
+                |> List.map(fun lineNum -> mBottom + lineNum * measureLineSpacing)
                 |> List.map(fun y -> createDrawableLedgerLine x y w)
             //Above staff
             else if pitchTop < mTop then
-                //Old method:
-                //let mutable currentY = mTop
-                //while currentY > pitchTop do
-                //    temp <- temp@[createDrawableLedgerLine x currentY w]
-                //    currentY <- currentY - measureLineSpacing
                 let diff = mTop - pitchTop
                 let numLines = diff / measureLineSpacing
-                [0. ..numLines]
+                [1. ..numLines]
                 |> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
                 |> List.map(fun y -> createDrawableLedgerLine x y w)
             //No ledger lines needed
@@ -181,7 +182,7 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
                 []
         //return
         result
-                
+
     /// Assigns y Coords to DEvents
     let rec yLoop resultList initY (eventList:DrawableEvent list) =
         match eventList with
@@ -211,13 +212,11 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
                         Basic.errMsg "Uncovered clef hit in assignYCoords.yLoop: %A" c
                         initY
                 | TimeSigEvent _ ->
-                    Basic.errMsg "Need to implement TimeSigEvent assignYCoords in DrawMusic!"
                     initY - 20.
                 | ErrorEvent e ->
                     Basic.errMsg "ErrorEvent %A can't be assigned a location." e
                     0.
-            hd.geom.y <- y
-            yLoop (resultList@[hd]) initY tl
+            yLoop (resultList@[{hd with geom={hd.geom with y = y}}]) initY tl
         | _ ->
             resultList
     //return
@@ -239,9 +238,11 @@ let createDrawableMeasure initialClef (measure:Measure) x y w h =
         |> fun e -> e.geom.x + e.geom.w
     if resultMeasure.geom.x + resultMeasure.geom.w <= finalX then
         let newWidth = finalX - resultMeasure.geom.x + kerning
-        resultMeasure.geom.x <- newWidth
-    //return
-    resultMeasure
+        //return
+        {resultMeasure with geom={resultMeasure.geom with w = newWidth}}
+    else
+        //return
+        resultMeasure
 
 /// Tries to find the lastmost clef in a measure, returns an option (Some cleff/None)
 let getPrevClef (measure:Measure) = measure |> List.tryFindBack(isClef)

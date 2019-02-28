@@ -11,6 +11,7 @@ type Engraver(canvas:Canvas) =
     /// Engraver tells Inker what to do
     member private __.inker = new Inker(canvas)
 
+    /// Calls inker.clearCanvas()
     member this.clearCanvas () = this.inker.clearCanvas()
 
     /// Draws given pitch. Does not handle beaming.
@@ -38,8 +39,8 @@ type Engraver(canvas:Canvas) =
             Basic.errMsg "engraveRestEvent does not currenlty handle %A Value rests! :(" rest.value
             ()
     /// Engraves TimeSig at given location
-    member private this.engraveTimeSigEvent geometry timeSig = 
-        let {x=x;y=y;w=w;h=h} = geometry
+    member private this.engraveTimeSigEvent geom timeSig = 
+        let {x=x;y=y;w=w;h=h} = geom
         this.inker.inkTimeSig (timeSig.numerator|>string) (timeSig.denominator|>int|>string) x y w h
 
     ///@TODO: Implement
