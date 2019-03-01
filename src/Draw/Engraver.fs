@@ -35,6 +35,8 @@ type Engraver(canvas:Canvas) =
             this.inker.inkHalfRest x y w h
         | Value.Quarter ->
             this.inker.inkQuarterRest x y w h
+        | Value.Eighth ->
+            this.inker.inkEighthRest x y w h
         | _ ->
             Basic.errMsg "engraveRestEvent does not currenlty handle %A Value rests! :(" rest.value
             ()

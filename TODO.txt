@@ -1,0 +1,5 @@
+﻿VISUAL STUDIO DOES NOT SUPPORT TASKS FOR F#
+WHY?!?!?!
+
+1. Allow stems to either face up or down
+2. Work on keysigs

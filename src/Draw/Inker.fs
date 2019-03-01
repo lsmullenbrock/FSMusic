@@ -120,6 +120,10 @@ type Inker(canvas:Canvas) =
     member this.inkLedgerLine x y w =
         this.createLineWidthHeight x y w 0.
         |> this.inkLine
+    
+    /// Draw an eighth rest
+    member this.inkEighthRest x y w h =
+        this.drawImageFromLocation ImageLocations.eighthRestImageLocation x y w h
 
     /// Draw a Quarter Rest
     member this.inkQuarterRest x y w h =

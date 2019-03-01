@@ -6,17 +6,13 @@ open System.Windows.Controls
 open MusicBase
 open Engraver
 open Drawable
-open System.Windows.Controls.Primitives
-
 
 /// Helper func to make adding elements easier.
 let addControlsToPanel (panel:#Panel) controlList = 
     (List.map(fun b -> panel.Children.Add b |> ignore) controlList) 
     |> ignore
 
-
 //-----------------------------------TESTS---------------------------------------
-
 let test (engraver:Engraver) =
     engraver.clearCanvas()
 
@@ -25,13 +21,12 @@ let test (engraver:Engraver) =
     let e3 = defaultPitchEvent
     let e4 = (Treble |> createEvent)
     let e5 = defaultPitchEvent
-    let e6 = createEvent (createRest Value.Quarter false)
-    let e7 = createEvent (createPitch Note.D None 3 Value.Quarter false false)
+    let e6 = createEvent (createRest Value.Eighth false)
+    let e7 = createEvent (createPitch Note.D None 3 Value.Half false false)
     
     let m1 = addMultipleEvents defaultMeasure [e1;e2;e7;e3;e4;e5;e6]
     let dMeasure1 = createDrawableMeasure Treble m1 50. 50. MusResources.measureWidthDefault MusResources.measureHeightDefault
     engraver.engraveMeasureAndEvents dMeasure1
-
 //-------------------------------------------------------------------------------
 
 
@@ -66,7 +61,7 @@ let makeWindow width height =
         newButton
 
     let clickEvent_testCanvas _ =
-        printfn "Button clicked."
+        Basic.log "clickEvent_testCanvas clicked"
         test engraver
 
     let drawExerciseButton = createButton "Draw Exercise" (clickEvent_testCanvas) "Genderate and Draw new reading exercise."
@@ -78,7 +73,7 @@ let makeWindow width height =
     clearButton.IsCancel <- true
 
     let clickEvent_help _ = 
-        MessageBox.Show("Hello")
+        MessageBox.Show("Click the Draw Exercise button to draw notes.")
         |> ignore
     let helpButton = createButton "Help" (clickEvent_help) "Click for a Help dialogue."
     
@@ -90,30 +85,6 @@ let makeWindow width height =
     addControlsToPanel mainButtonPanel [drawExerciseButton; clearButton;helpButton; closeButton]
 
     let mainPanel = new StackPanel(Orientation = Orientation.Vertical)
-
-    let label = 
-        new Label(
-            Content = 0,
-            Width = 50.,
-            FlowDirection = FlowDirection.RightToLeft
-        )
-
-    let slider = 
-        new Slider(
-            Minimum = 0.,
-            Maximum = 100.,
-            Width = width / 5.,
-            TickFrequency = 10.,
-            Margin = buttonMargin,
-            TickPlacement = TickPlacement.BottomRight,
-            FlowDirection = FlowDirection.LeftToRight
-        )
-
-    slider.ValueChanged.Add(fun _ -> label.Content <- (int slider.Value))
-
-    let sliderPanel = new StackPanel(Orientation = Orientation.Horizontal)
-    let (sList:UIElement list) = [label; slider]
-    addControlsToPanel sliderPanel sList
 
     let (mainControls:Panel list) = [mainButtonPanel; canvas]
     addControlsToPanel mainPanel mainControls

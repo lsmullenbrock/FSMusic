@@ -1,7 +1,6 @@
 ﻿module Drawable
 
 open MusicBase
-
 /// Holds geometry data for drawble objects
 type MusGeom =
     { x: float
@@ -27,6 +26,9 @@ let defaultGeom = {x=0.;y=0.;w=0.;h=0.}
 let defaultDrawableMeasure = {dEvents=[];geom=defaultGeom}
 let defaultDrawableStaff = {measures=[];geom=defaultGeom}
 
+(*
+    These assignments are kept in case later refactoring is needed for scaling/etc
+*)
 //pitches
 let wholeNoteWidth, wholeNoteHeight = MusResources.wholeNoteheadWidthDefault, MusResources.wholeNoteheadHeightDefault
 let halfNoteWidth, halfNoteHeight = MusResources.halfNoteheadWidthDefault, MusResources.halfNoteheadHeightDefault
@@ -35,8 +37,9 @@ let ledgerLineWidth = MusResources.ledgerLineWidth
 let pitchYSpacing = MusResources.pitchYSpacing
 let measureLineSpacing = MusResources.measureLineSpacing
 //rests
+let eighthRestWidth, eighthRestHeight = MusResources.eighthRestWidthDefault, MusResources.eightRestHeightDefault
 let quarterRestWidth, quarterRestHeight = MusResources.quarterRestWidthDefault, MusResources.quarterRestHeightDefault
-let halfRestWidth, halfRestHeight = MusResources.halfNoteheadWidthDefault, MusResources.halfRestHeightDefault
+let halfRestWidth, halfRestHeight = MusResources.halfRestWidthDefault, MusResources.halfRestHeightDefault
 let wholeRestWidth, wholeRestHeight = MusResources.wholeRestWidthDefault, MusResources.wholeRestHeightDefault
 //clefs
 let bassClefWidth, bassClefHeight = MusResources.bassClefWidthDefault, MusResources.bassClefHeightDefault
@@ -52,6 +55,42 @@ let createGeom x y w h : MusGeom = {x=x;y=y;w=w;h=h}
 
 /// Wraps event into a DrawableEvent
 let createDrawableEvent event = {event=event; geom=defaultGeom}
+
+/// Used to calculate value interval in staff lines and spaces between two pitches.
+/// Negative distance means p1 is below p2 on the staff.
+let inline staffInterval p1 p2 = (distFromC0 p1) - (distFromC0 p2)
+
+/// Creates single LedgerLineEvent at given location
+let createDrawableLedgerLine x y w =
+    {event=LedgerLineEvent;geom=createGeom x y w 0.}
+
+/// Creates multiple ledger lines.
+let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
+    let mTop = measure.geom.y
+    let mBottom = mTop + measure.geom.h
+    let x = p.geom.x - p.geom.w / 4.
+    let w = ledgerLineWidth
+
+    let result = 
+        // Below staff
+        if pitchTop > mBottom then
+            let diff = pitchTop - mBottom
+            let numLines = diff / measureLineSpacing
+            [0. ..numLines + 1.]
+            |> List.map(fun lineNum -> mBottom + lineNum * measureLineSpacing)
+            |> List.map(fun y -> createDrawableLedgerLine x y w)
+        //Above staff
+        else if pitchTop < mTop then
+            let diff = mTop - pitchTop
+            let numLines = diff / measureLineSpacing
+            [1. ..numLines]
+            |> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
+            |> List.map(fun y -> createDrawableLedgerLine x y w)
+        //No ledger lines needed
+        else
+            []
+    //return
+    result
 
 /// Creates a DrawableMeasureEvent from a regular MeasureEvent
 let private setDEventSize dEvent =
@@ -69,6 +108,8 @@ let private setDEventSize dEvent =
             ledgerLineWidth, 0.
         | RestEvent r ->
             match r.value with
+            | Value.Eighth ->
+                eighthRestWidth, eighthRestHeight
             | Value.Quarter ->
                 quarterRestWidth, quarterRestHeight
             | Value.Half ->
@@ -95,6 +136,7 @@ let private setDEventSize dEvent =
         | ErrorEvent e ->
             Basic.errMsg "Error encountered! Error message: %A" (e.ToString())
             0., 0.
+    //return
     {dEvent with geom = {dEvent.geom with w=w; h=h}}
 
 /// Maps setDEventSize over a list
@@ -132,56 +174,22 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
         if c <> currentClef then 
             currentClef <- c
 
-    /// Used to calculate value interval in staff lines and spaces between two pitches.
-    /// Negative distance means p1 is below p2 on the staff.
-    let inline staffInterval p1 p2 = (distFromC0 p1) - (distFromC0 p2)
-
     /// Gets the Y coord of a pitch
     let getPitchYCoords initY curClef pitch =
         let staffDist = float<|staffInterval defaultPitch pitch
         let dist = staffDist * pitchYSpacing
-        match curClef with
-        | Treble -> //count UP from MidC
-            let midCY = initY + pitchYSpacing * 9.
-            midCY + dist
-        | Bass -> //count DOWN from MidC
-            let midCY = initY - pitchYSpacing * 3.
-            midCY + dist
-        | NoClef ->
-            Basic.errMsg "Attempted to assign a Y coord to a Pitch with a None clef!"
-            initY
-
-    /// Creates single LedgerLineEvent at given location
-    let createDrawableLedgerLine x y w =
-        {event=LedgerLineEvent;geom=createGeom x y w 0.}
-
-    /// Creates multiple ledger lines.
-    let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
-        let mTop = measure.geom.y
-        let mBottom = mTop + measure.geom.h
-        let x = p.geom.x - p.geom.w / 4.
-        let w = ledgerLineWidth
-
-        let result = 
-            // Below staff
-            if pitchTop > mBottom then
-                let diff = pitchTop - mBottom
-                let numLines = diff / measureLineSpacing
-                [0. ..numLines + 1.]
-                |> List.map(fun lineNum -> mBottom + lineNum * measureLineSpacing)
-                |> List.map(fun y -> createDrawableLedgerLine x y w)
-            //Above staff
-            else if pitchTop < mTop then
-                let diff = mTop - pitchTop
-                let numLines = diff / measureLineSpacing
-                [1. ..numLines]
-                |> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
-                |> List.map(fun y -> createDrawableLedgerLine x y w)
-            //No ledger lines needed
-            else
-                []
+        let midCY =
+            match curClef with
+            | Treble -> //count UP from MidC
+                initY + pitchYSpacing * 9.
+            | Bass -> //count DOWN from MidC
+                initY - pitchYSpacing * 3.
+            | NoClef ->
+                Basic.errMsg "Attempted to assign a Y coord to a Pitch with a None clef!"
+                Basic.errMsg "Returning midpointY of measure as middle C coord"
+                initY + pitchYSpacing * 6.
         //return
-        result
+        midCY + dist
 
     /// Assigns y Coords to DEvents
     let rec yLoop resultList initY (eventList:DrawableEvent list) =
@@ -197,7 +205,13 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
                 | LedgerLineEvent ->
                     hd.geom.y
                 | RestEvent r ->
-                    measureMidpointY
+                    match r.value with
+                    | Value.Half ->
+                        measureMidpointY + measureLineSpacing - halfRestHeight
+                    | Value.Eighth ->
+                        measureMidpointY + measureLineSpacing / 2.5
+                    | _ -> 
+                        measureMidpointY
                 | KeyEvent k ->
                     Basic.errMsg "Need to implement KeyEvent assignYCoords in DrawMusic!"
                     initY
@@ -221,7 +235,7 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
             resultList
     //return
     yLoop [] initialY measure.dEvents
-    |> fun dList -> {measure with dEvents = dList@ledgerLines}
+    |> fun dList -> {measure with dEvents = dList@ledgerLines} //ledger lines can be appended to the end because they're already assigned geometries
 
 /// Aligns events according to where they fall in the measure.
 let assignGeometries clef =

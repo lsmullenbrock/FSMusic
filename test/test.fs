@@ -1,7 +1,11 @@
 ﻿module test
 
 open NUnit.Framework
+open System.Windows
 
 [<Test>]
-let ``first test`` () = 
-    printfn "first test"
+let ``test window`` () =
+    let window = MusWindow.makeWindow MusResources.mainWindowWidth MusResources.mainWindowHeight
+
+    (new Application()).Run(window)
+    |> ignore

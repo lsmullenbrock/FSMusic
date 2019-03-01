@@ -15,7 +15,7 @@ let leftPadding, rightPadding = mainWindowHeight/10., mainWindowHeight/10.
 //measure
 [<Literal>]
 let NUM_STAFF_LINES = 5.
-let measureWidthDefault = (mainWindowHeight - leftPadding - rightPadding) * SIZE_MULTIPLIER
+let measureWidthDefault = (mainWindowWidth - leftPadding - rightPadding) * SIZE_MULTIPLIER
 let measureHeightDefault = 100. * SIZE_MULTIPLIER
 
 //measure spacings
@@ -51,20 +51,20 @@ let filledNoteheadWidthDefault = measureHeightDefault * 0.30 * SIZE_MULTIPLIER
 let filledNoteheadHeightDefault = 25. * SIZE_MULTIPLIER
 
 //ledger line
-let ledgerLineWidth = filledNoteheadWidthDefault * 1.50 //multiplier already built-in
+let ledgerLineWidth = filledNoteheadWidthDefault * 1.50
 
 //rests
-let wholeRestWidthDefault = measureHeightDefault * 0.35 * SIZE_MULTIPLIER
-let wholeRestHeightDefault = measureHeightDefault * 0.15 * SIZE_MULTIPLIER
+let eighthRestWidthDefault = filledNoteheadWidthDefault * 0.5
+let eightRestHeightDefault = filledNoteheadWidthDefault
 
-let halfRestWidthDefault = wholeRestWidthDefault
-let halfRestHeightDefault = wholeRestHeightDefault
+let quarterRestWidthDefault = filledNoteheadWidthDefault * 0.75
+let quarterRestHeightDefault = filledNoteheadHeightDefault * 2.
 
-let quarterRestWidthDefault = measureHeightDefault * 0.25 * SIZE_MULTIPLIER
-let quarterRestHeightDefault = measureHeightDefault * 0.5 * SIZE_MULTIPLIER
+let halfRestWidthDefault = halfNoteheadWidthDefault * 1.25
+let halfRestHeightDefault = halfNoteheadHeightDefault * 0.4
 
-let eighthRestWidthDefault = measureHeightDefault * 0.05 * SIZE_MULTIPLIER
-let eightRestHeightDefault = measureHeightDefault * 0.10 * SIZE_MULTIPLIER
+let wholeRestWidthDefault = halfRestWidthDefault
+let wholeRestHeightDefault = halfRestHeightDefault
 
 //spacing
 let kerning = measureWidthDefault * 0.025 * SIZE_MULTIPLIER

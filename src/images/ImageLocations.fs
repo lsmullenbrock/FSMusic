@@ -28,6 +28,8 @@ let naturalImageLocation = currentLoc + "natural.png"
 
 //Rests
 [<Literal>]
+let eighthRestImageLocation = currentLoc + "eighth_rest.png"
+[<Literal>]
 let quarterRestImageLocation = currentLoc + "quarter_rest.png"
 [<Literal>]
 let halfRestImageLocation = currentLoc + "half_rest.png"
