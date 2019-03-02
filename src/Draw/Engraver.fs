@@ -11,6 +11,8 @@ type Engraver(canvas:Canvas) =
     /// Engraver tells Inker what to do
     member private __.inker = new Inker(canvas)
 
+    member __.stemLength = MusResources.stemLengthDefault
+
     /// Calls inker.clearCanvas()
     member this.clearCanvas () = this.inker.clearCanvas()
 
@@ -21,9 +23,16 @@ type Engraver(canvas:Canvas) =
         | Value.Whole ->
             this.inker.inkWholeNotehead x y w h
         | Value.Half ->
-            this.inker.inkHalfNoteheadPitch x y w h MusResources.stemLengthDefault
+            this.inker.inkHalfNoteheadPitch x y w h this.stemLength
         | _ ->
-            this.inker.inkFilledNoteheadPitch x y w h MusResources.stemLengthDefault
+            let stemY = y + h / 2.
+            match geometry.orientation with
+            | UP -> 
+                this.inker.inkStem (x + w) (stemY - this.stemLength) this.stemLength
+            | DOWN -> 
+                this.inker.inkStem x stemY this.stemLength
+            this.inker.inkFilledNoteheadPitch x y w h 
+            
 
     /// Draw given rest. @TODO: Implement. Add handling for 8th and shorter rests.
     member private this.engraveRestEvent geometry (rest:Rest) =

@@ -1,12 +1,15 @@
 ﻿module Drawable
 
 open MusicBase
+/// Temporary fix
+type Orientation = UP | DOWN
 /// Holds geometry data for drawble objects
 type MusGeom =
     { x: float
       y: float
       w: float
-      h: float }
+      h: float
+      mutable orientation: Orientation }
 /// Couples Geometry type with MeasureEvent type.
 type DrawableEvent =
     { event: MeasureEvent
@@ -22,7 +25,7 @@ type DrawableStaff =
       geom: MusGeom }
 
 //default sizes
-let defaultGeom = {x=0.;y=0.;w=0.;h=0.}
+let defaultGeom = {x=0.;y=0.;w=0.;h=0.;orientation=UP}
 let defaultDrawableMeasure = {dEvents=[];geom=defaultGeom}
 let defaultDrawableStaff = {measures=[];geom=defaultGeom}
 
@@ -51,7 +54,7 @@ let timeSigWidth, timeSigHeight = MusResources.timeSigWidthDefault, MusResources
 let kerning = MusResources.kerning
 
 /// Helper func to create Geometry from x, y, w, h
-let createGeom x y w h : MusGeom = {x=x;y=y;w=w;h=h}
+let createGeom x y w h : MusGeom = {x=x;y=y;w=w;h=h;orientation=UP}
 
 /// Wraps event into a DrawableEvent
 let createDrawableEvent event = {event=event; geom=defaultGeom}
@@ -199,6 +202,11 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
                 match hd.event with
                 | PitchEvent p ->
                     let pY = getPitchYCoords initY currentClef p
+                    //check if pitch is above or below midpoint
+                    if pY >= measureMidpointY then
+                        hd.geom.orientation <- UP
+                    else 
+                        hd.geom.orientation <- DOWN
                     //assign ledger lines
                     ledgerLines <- ledgerLines@(createLedgerLines measure hd pY)
                     pY
@@ -246,7 +254,7 @@ let assignGeometries clef =
 /// Creates DrawableMeasure out of given Measure.
 let createDrawableMeasure initialClef (measure:Measure) x y w h =
     let dEvents = measure |> List.map createDrawableEvent
-    let resultMeasure = {dEvents=dEvents; geom={x=x;y=y;w=w;h=h}} |> (assignGeometries initialClef)
+    let resultMeasure = {dEvents=dEvents; geom={x=x;y=y;w=w;h=h;orientation=UP}} |> (assignGeometries initialClef)
     let finalX = 
         List.last resultMeasure.dEvents
         |> fun e -> e.geom.x + e.geom.w

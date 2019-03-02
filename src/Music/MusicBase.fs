@@ -58,6 +58,12 @@ type Pitch =
       tied: Tied
       value: Value
       dotted: Dotted }
+
+/// Tie, may need refactor?
+type Tie = 
+    { origin: Pitch
+      target: Pitch }
+
 /// Rest types are only a silent duration.
 type Rest =
     { value: Value
@@ -79,6 +85,7 @@ let createTimeSig numerator denominator =
 /// Wrapper type so that Pitches, Rests, Clefs and so on can be packed into a Measure together.
 type MeasureEvent =
     | PitchEvent of Pitch
+    | TieEvent of Tie
     | LedgerLineEvent
     | RestEvent of Rest
     | KeyEvent of Key
@@ -91,6 +98,8 @@ let createEvent (item:obj) =
     match item with
     | :? Pitch as p ->
         PitchEvent p
+    | :? Tie as t ->
+        TieEvent t
     | :? Rest as r ->
         RestEvent r
     | :? Clef as c ->

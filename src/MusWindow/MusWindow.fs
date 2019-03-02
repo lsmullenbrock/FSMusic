@@ -36,9 +36,10 @@ let makeWindow width height =
             Width = width, 
             Height = height,
             Title = "MusWindow Test",
-            Icon = (loadImageFile ImageLocations.flatImageLocation)
+            Icon = (loadImageFile ImageLocations.flatImageLocation),
+            WindowStartupLocation = WindowStartupLocation.CenterScreen
         )
-
+    
     let canvas = new Canvas()
     let engraver = new Engraver(canvas)
 

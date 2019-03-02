@@ -49,9 +49,8 @@ type Inker(canvas:Canvas) =
 
     /// Adds multiple Line objects to given Canvas.
     member inline private this.inkLines (lines:Line list) =
-        lines 
-        |> List.map this.inkLine
-        |> ignore
+        lines
+        |> List.iter this.inkLine
 
     /// Creates a single horizontal Staff line.
     member private this.createStaffLine x y w =
@@ -105,9 +104,9 @@ type Inker(canvas:Canvas) =
         this.inkStem (x + MusResources.stemXOffset) (y + h * MusResources.stemYOffsetMultiplier) stemLength
 
     /// Draws a filled Notehead with a stem (no beaming).
-    member this.inkFilledNoteheadPitch x y w h stemLength =
+    member this.inkFilledNoteheadPitch x y w h =
         this.inkFilledNotehead x y w h
-        this.inkStemDefaultOffsets x y h stemLength 
+        
     /// Draws a half Notehead with a stem (i.e., a half note).
     member this.inkHalfNoteheadPitch x y w h stemLength =
         this.inkHalfNotehead x y w h
