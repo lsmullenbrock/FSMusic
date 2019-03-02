@@ -1,4 +1,15 @@
 ﻿VISUAL STUDIO DOES NOT SUPPORT TASKS FOR F#
 WHY?!?!?!
 
-2. Work on keysigs
+@TODO
+Finish ties
+
+@TODO
+Add slurs
+
+@TODO Accidentals
+Major work to be done here. Not even implemented in drawing whatsoever.
+
+@TODO Keysigs
+Major work for drawing keysigs
+
