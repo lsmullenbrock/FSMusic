@@ -1,8 +1,10 @@
 ﻿VISUAL STUDIO DOES NOT SUPPORT TASKS FOR F#
 WHY?!?!?!
 
-@TODO
-Finish ties
+@TODO Dots
+
+@TODO Ties
+
 
 @TODO
 Add slurs

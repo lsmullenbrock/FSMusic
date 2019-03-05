@@ -1,2 +1,3 @@
 # FSMusic_Test1
-Testing MusWindow
+A toy music engraving program written in F#.
+Not meant for anything other than toy use for now.

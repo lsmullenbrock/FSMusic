@@ -12,6 +12,7 @@ type Engraver(canvas:Canvas) =
     member private __.inker = new Inker(canvas)
 
     member __.stemLength = MusResources.stemLengthDefault
+    member __.dotSize = MusResources.dotSizeDefault
 
     /// Calls inker.clearCanvas()
     member this.clearCanvas () = this.inker.clearCanvas()
@@ -26,13 +27,19 @@ type Engraver(canvas:Canvas) =
             this.inker.inkHalfNoteheadPitch x y w h this.stemLength
         | _ ->
             let stemY = y + h / 2.
+            let widthOffset = w * 0.05
             match geometry.orientation with
             | UP -> 
-                this.inker.inkStem (x + w) (stemY - this.stemLength) this.stemLength
+                this.inker.inkStem (x + w - widthOffset) (stemY - this.stemLength) this.stemLength
             | DOWN -> 
-                this.inker.inkStem x stemY this.stemLength
+                this.inker.inkStem (x + widthOffset) stemY this.stemLength
             this.inker.inkFilledNoteheadPitch x y w h 
-            
+        match pitch.dotted with
+        | true -> 
+            printfn "hit true in pitch.dotted"
+            this.inker.inkDot x y w this.dotSize
+        | _ ->
+            ()
 
     /// Draw given rest. @TODO: Implement. Add handling for 8th and shorter rests.
     member private this.engraveRestEvent geometry (rest:Rest) =
@@ -49,6 +56,12 @@ type Engraver(canvas:Canvas) =
         | _ ->
             Basic.errMsg "engraveRestEvent does not currenlty handle %A Value rests! :(" rest.value
             ()
+        match rest.dotted with
+        | true ->
+            this.inker.inkDot x (y + h / 4.) w this.dotSize
+        | _ ->
+            ()
+
     /// Engraves TimeSig at given location
     member private this.engraveTimeSigEvent geom timeSig = 
         let {x=x;y=y;w=w;h=h} = geom
@@ -74,12 +87,18 @@ type Engraver(canvas:Canvas) =
         let {x=x;y=y;w=w} = geometry
         this.inker.inkLedgerLine x y w 
 
+    /// Engraves a tie
+    member private this.engraveTieEvent geometry tie =
+        Basic.errMsg "Implement engraveTieEvent"
+
     /// (Attempts to) draw correct event.
     member private this.engraveEvent (dEvent:DrawableEvent) =
         let g = dEvent.geom
         match dEvent.event with
         | PitchEvent p ->
             this.engravePitchEvent g p
+        | TieEvent t ->
+            this.engraveTieEvent g t
         | LedgerLineEvent ->
             this.engraveLedgerLine g
         | RestEvent r ->

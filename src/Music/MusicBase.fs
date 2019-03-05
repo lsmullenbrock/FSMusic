@@ -55,7 +55,6 @@ type Pitch =
     { note: Note
       alteration: Alteration option
       octave: Octave
-      tied: Tied
       value: Value
       dotted: Dotted }
 
@@ -77,8 +76,8 @@ type Key =
 let createRest value dotted =
     { value = value; dotted = dotted }
 /// Helper func to generate a Pitch.
-let createPitch note alteration octave value tied dotted =
-    { note = note; alteration = alteration; octave = octave; value = value; tied = tied; dotted = dotted }
+let createPitch note alteration octave value dotted =
+    { note = note; alteration = alteration; octave = octave; value = value; dotted = dotted }
 /// Helper func to generate a TimeSig.
 let createTimeSig numerator denominator =
     { numerator = numerator; denominator = denominator }
@@ -151,7 +150,7 @@ let inline interval p1 p2 =
 
 //Default events/etc
 let defaultRest = createRest Value.Quarter false
-let defaultPitch = createPitch Note.C None 4 Value.Quarter false false
+let defaultPitch = createPitch Note.C None 4 Value.Quarter false
 let defaultClef = Clef.Treble
 let defaultKey = { root = Note.C; alteration = Alteration.Natural; quality = Quality.Major }
 let defaultTimeSig = createTimeSig 4 Value.Quarter

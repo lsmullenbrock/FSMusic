@@ -3,7 +3,7 @@
 open System.Windows
 open System.Windows.Shapes
 open System.Windows.Controls
-open Drawable
+open System.Windows.Media
 
 /// Class which only draws what it is told to draw.
 type Inker(canvas:Canvas) =
@@ -16,6 +16,12 @@ type Inker(canvas:Canvas) =
     member inline private __.addElementToCanvas (elem:#UIElement) =
         canvas.Children.Add(elem) 
         |> ignore
+
+    /// Adds a UIElement at a given location    
+    member inline private this.addElemAtLocation (elem:#UIElement) x y =
+        Canvas.SetLeft(elem, x)
+        Canvas.SetTop(elem, y)
+        this.addElementToCanvas elem
     
     /// Add a TextBlock to canvas at given location.
     /// @TODO does not work properly, troubleshoot offsetting
@@ -23,25 +29,20 @@ type Inker(canvas:Canvas) =
         let textBlock = new TextBlock(Text=text, FontSize=h)
         //textBlock.Height <- h
         //textBlock.Width <- w
-        Canvas.SetLeft(textBlock, x)
-        Canvas.SetTop(textBlock, y)
-        this.addElementToCanvas textBlock
+        this.addElemAtLocation textBlock x y
 
     /// Simply adds given Image to given Canvas
     member private this.addImage (image:#Image) x y =
-        this.addElementToCanvas image 
-        |> ignore
-        Canvas.SetLeft(image, x)
-        Canvas.SetTop(image, y)
+        this.addElemAtLocation image x y
 
     /// Given a file location, attempt to draw it to a canvas.
     member private this.drawImageFromLocation file x y w h =
-        let image = createImage file w h
+        let image = DrawUtils.createImage file w h
         this.addImage image x y
 
     /// Creates a line that spans a specific width and height.
-    member private this.createLineWidthHeight x y w h =
-        createLine x y (x + w) (y + h)
+    member private __.createLineWidthHeight x y w h =
+        DrawUtils.createLine x y (x + w) (y + h)
 
     /// Adds a single Line object to given Canvas.
     member inline private this.inkLine (line:Line) = 
@@ -114,6 +115,16 @@ type Inker(canvas:Canvas) =
     /// Explicit implementation meant specifically for whole notes; `drawWholeNotehead` is implicit for drawing the whole note glyph
     member this.drawWholeNoteheadPitch x y w h =
         this.inkWholeNotehead x y w h
+
+    /// Inks a dot
+    member this.inkDot x y w size =
+        let dot = 
+            new Ellipse(
+                Width = size,
+                Height = size,
+                Fill = Brushes.Black
+            )
+        this.addElemAtLocation dot (x + w * 1.25) y
 
     /// Draw a single ledger line.
     member this.inkLedgerLine x y w =

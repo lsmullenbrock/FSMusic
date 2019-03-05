@@ -1,4 +1,4 @@
-﻿[<AutoOpen>]
+﻿[<RequireQualifiedAccess>]
 module DrawUtils
 
 open System
@@ -9,7 +9,7 @@ open System.Windows.Controls
 open System.Windows.Media.Imaging
 
 /// Loads image from file if it exists or the url otherwise
-let loadImageFile file =
+let inline loadImageFile file =
     //let path = Path.Combine(ImageLocations.imageLocDir, file)
     if File.Exists(file) then
         Basic.log "Loading image located at %A" file

@@ -136,6 +136,9 @@ let private setDEventSize dEvent =
             0., 0.
         | TimeSigEvent _ ->
             timeSigWidth, timeSigHeight
+        | TieEvent _ ->
+            Basic.errMsg "Cannot set w/h of TieEvent yet"
+            0., 0.
         | ErrorEvent e ->
             Basic.errMsg "Error encountered! Error message: %A" (e.ToString())
             0., 0.
@@ -154,7 +157,12 @@ let assignEventXCoords (measure:DrawableMeasure) =
     let rec xLoop resultList prevXPos prevWidth kerning (eventList:DrawableEvent list) =
         match eventList with
         | hd::tl ->
-            let newX = prevXPos + prevWidth + kerning
+            let newX = 
+                // If the last event has no width, no adjustment/kerning needed
+                if prevWidth = 0. then
+                    prevXPos
+                else 
+                    prevXPos + prevWidth + kerning
             let result = {hd with geom={hd.geom with x=newX}}
             xLoop (resultList@[result]) result.geom.x result.geom.w kerning tl 
         | _ ->
@@ -220,7 +228,7 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
                         measureMidpointY + measureLineSpacing / 2.5
                     | _ -> 
                         measureMidpointY
-                | KeyEvent k ->
+                | KeyEvent _ ->
                     Basic.errMsg "Need to implement KeyEvent assignYCoords in DrawMusic!"
                     initY
                 | ClefEvent c -> 
@@ -235,6 +243,9 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
                         initY
                 | TimeSigEvent _ ->
                     initY - 20.
+                | TieEvent _ ->
+                    Basic.errMsg "Need to implement TieEvent in assignYCoords"
+                    0.
                 | ErrorEvent e ->
                     Basic.errMsg "ErrorEvent %A can't be assigned a location." e
                     0.

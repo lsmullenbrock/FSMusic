@@ -18,13 +18,13 @@ let test (engraver:Engraver) =
 
     let e1 = (Bass |> createEvent)
     let e2 = defaultTimeSigEvent
-    let e3 = defaultPitchEvent
+    let e3 = {defaultPitch with octave = 3} |> createEvent
     let e4 = (Treble |> createEvent)
-    let e5 = defaultPitchEvent
-    let e6 = createEvent (createRest Value.Eighth false)
-    let e7 = createEvent (createPitch Note.D None 3 Value.Half false false)
+    let e5 = e3
+    let e6 = createEvent (createRest Value.Eighth true)
+    let e7 = createEvent (createPitch Note.D None 3 Value.Half true)
     
-    let m1 = addMultipleEvents defaultMeasure [e1;e2;e7;e3;e4;e5;e6]
+    let m1 = addMultipleEvents defaultMeasure [e1;e2;e3;e5]
     let dMeasure1 = createDrawableMeasure Treble m1 50. 50. MusResources.measureWidthDefault MusResources.measureHeightDefault
     engraver.engraveMeasureAndEvents dMeasure1
 //-------------------------------------------------------------------------------
@@ -36,7 +36,7 @@ let makeWindow width height =
             Width = width, 
             Height = height,
             Title = "MusWindow Test",
-            Icon = (loadImageFile ImageLocations.flatImageLocation),
+            Icon = (DrawUtils.loadImageFile ImageLocations.flatImageLocation),
             WindowStartupLocation = WindowStartupLocation.CenterScreen
         )
     

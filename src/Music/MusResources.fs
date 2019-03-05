@@ -40,6 +40,9 @@ let stemXOffset = 1. * SIZE_MULTIPLIER
 let stemYOffsetMultiplier = 0.75 * SIZE_MULTIPLIER
 let stemLengthDefault = 75. * SIZE_MULTIPLIER
 
+//dot
+let dotSizeDefault = measureHeightDefault * 0.05
+
 //noteheads
 let wholeNoteheadWidthDefault = measureHeightDefault * 0.35 * SIZE_MULTIPLIER
 let wholeNoteheadHeightDefault = measureHeightDefault * 0.25 * SIZE_MULTIPLIER
@@ -67,6 +70,6 @@ let wholeRestWidthDefault = halfRestWidthDefault
 let wholeRestHeightDefault = halfRestHeightDefault
 
 //spacing
-let kerning = measureWidthDefault * 0.025 * SIZE_MULTIPLIER
+let kerning = measureWidthDefault * 0.03 * SIZE_MULTIPLIER
 
 
