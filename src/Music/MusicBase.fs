@@ -50,6 +50,8 @@ type Clef =
     | Treble
     | Bass
     | NoClef
+
+
 /// Basic Pitch type.
 type Pitch =
     { note: Note
@@ -57,11 +59,6 @@ type Pitch =
       octave: Octave
       value: Value
       dotted: Dotted }
-
-/// Tie, may need refactor?
-type Tie = 
-    { origin: Pitch
-      target: Pitch }
 
 /// Rest types are only a silent duration.
 type Rest =
@@ -81,53 +78,105 @@ let createPitch note alteration octave value dotted =
 /// Helper func to generate a TimeSig.
 let createTimeSig numerator denominator =
     { numerator = numerator; denominator = denominator }
-/// Wrapper type so that Pitches, Rests, Clefs and so on can be packed into a Measure together.
-type MeasureEvent =
+
+/// @HACK: fix this trash!
+type EventID = int
+
+type IndependentEvent = 
     | PitchEvent of Pitch
-    | TieEvent of Tie
-    | LedgerLineEvent
     | RestEvent of Rest
     | KeyEvent of Key
-    | ClefEvent of Clef
     | TimeSigEvent of TimeSig
+    | ClefEvent of Clef
     | ErrorEvent of Basic.MusError
-/// Helper func to convert given item to a MeasureEvent.
+
+type DependentEventType =
+    | Tie
+    | Slur
+    | LedgerLine
+
+/// Wrapper type so that Pitches, Rests, Clefs and so on can be packed into a Measure together.
+///
+/// The EventID here is mutable for the irony that it must remain unmutated as it is
+/// passed throughout the alignment pipelines; i.e., object expressions destory the
+/// reference to the original object and thus LineEvents cannot keep track of the
+/// Event's ID.
+type MeasureEvent =
+    { mEvent: MEvent 
+      mutable eID: EventID }
+and MEvent =
+    | IndependentEvent of IndependentEvent
+    | DependentEvent of DependentEvent
+and DependentEvent =
+    { dType: DependentEventType
+      origin: MeasureEvent
+      target: MeasureEvent }
+
+/// Helper func
+let createMeasureEvent mEvent eID =
+    {mEvent=mEvent;eID=eID}
+
+/// Helper func to convert given item to a IndependentEvent.
 /// Returns an ErrorEvent if type is not wrapable into MeasureEvent.
-let createEvent (item:obj) =
-    match item with
-    | :? Pitch as p ->
-        PitchEvent p
-    | :? Tie as t ->
-        TieEvent t
-    | :? Rest as r ->
-        RestEvent r
-    | :? Clef as c ->
-        ClefEvent c
-    | :? Key as k ->
-        KeyEvent k
-    | :? TimeSig as t ->
-        TimeSigEvent t
-    | _ -> 
-        Basic.errMsg "%A cannot be cast into MeasureEvent! Returning an ErrorEvent instead." item
-        ErrorEvent (Basic.MusErr (sprintf "Error in createEvent with item: %A" item))
+let createIndpEvent (item:obj) eID : MeasureEvent =
+    let event = 
+        (match item with
+        | :? Pitch as p ->
+            PitchEvent p
+        | :? Rest as r ->
+            RestEvent r
+        | :? Key as k ->
+            KeyEvent k
+        | :? TimeSig as t ->
+            TimeSigEvent t
+        | :? Clef as c ->
+            ClefEvent c
+        | _ ->
+            Basic.errMsg "Cannot create MeasureEvent out of given item: %A" item
+            (ErrorEvent "Err in createEvent")
+        ) |> IndependentEvent
+    createMeasureEvent event eID
+
+let createDepEvent dType origin target eID =
+    let event = {dType=dType;origin=origin;target=target} |> DependentEvent
+    createMeasureEvent event eID
+
+
 /// (Tries to) create(s) multiple events from a list of obj's.
-let createMultipleEvents (items:obj list) = List.map createEvent items
+/// 
+/// All events are given and ID of 0 until they are added to a Measure.
+let createMultipleEvents (items:obj list) = () 
+
 /// Helper func to unbox event into basic type.
 /// Must be careful to properly cast recieving let binding/etc.
-let unboxEvent (event:MeasureEvent) = unbox event
+let unboxEvent (event:MeasureEvent) = 
+    unbox event
 
 /// Helper func for clefs
 let isClef (item:obj) =
     match item with
-    | :? Clef -> true
-    | _ -> false
+    | :? Clef   -> true
+    | _         -> false
 
 /// Type is meant to be simple/"dumb".
-type Measure = MeasureEvent list 
+type Measure = MeasureEvent list
+
 /// Adds single event to given measure
-let addEvent (measure:Measure) (event:MeasureEvent) = measure@[event]
+let addEvent (measure:Measure) (event:MeasureEvent) =
+    let id =
+        match List.tryLast measure with
+        | None -> 
+            0
+        | Some e ->
+            // This is preferred over measure.Length as the
+            // length will change as it is processed in later funcs
+            e.eID + 1
+    event.eID <- id
+    measure@[event]
+
 /// Adds more than one event to a measure
-let addMultipleEvents measure events = List.fold addEvent measure events
+let addMultipleEvents measure events = 
+    List.fold addEvent measure events
 
 /// Staves are simply Measure lists
 type Staff = Measure list
@@ -155,11 +204,11 @@ let defaultClef = Clef.Treble
 let defaultKey = { root = Note.C; alteration = Alteration.Natural; quality = Quality.Major }
 let defaultTimeSig = createTimeSig 4 Value.Quarter
 
-let defaultRestEvent = createEvent defaultRest
-let defaultPitchEvent = createEvent defaultPitch
-let defaultClefEvent = createEvent defaultClef
-let defaultKeyEvent = createEvent defaultKey
-let defaultTimeSigEvent = createEvent defaultTimeSig
+let defaultRestEvent = createIndpEvent defaultRest 0
+let defaultPitchEvent = createIndpEvent defaultPitch 0
+let defaultClefEvent = createIndpEvent defaultClef 0
+let defaultKeyEvent = createIndpEvent defaultKey 0
+let defaultTimeSigEvent = createIndpEvent defaultTimeSig 0
 
 let defaultMeasure:Measure = []
 

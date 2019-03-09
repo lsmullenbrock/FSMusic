@@ -16,15 +16,15 @@ let addControlsToPanel (panel:#Panel) controlList =
 let test (engraver:Engraver) =
     engraver.clearCanvas()
 
-    let e1 = (Bass |> createEvent)
-    let e2 = defaultTimeSigEvent
-    let e3 = {defaultPitch with octave = 3} |> createEvent
-    let e4 = (Treble |> createEvent)
-    let e5 = e3
-    let e6 = createEvent (createRest Value.Eighth true)
-    let e7 = createEvent (createPitch Note.D None 3 Value.Half true)
+    let e0 = createIndpEvent Bass 0
+    let e1 = defaultTimeSigEvent
+    let e2 = createIndpEvent {defaultPitch with octave = 3} 0
+    let e3 = createIndpEvent {defaultPitch with octave = 3} 0
+
+    //ties
+    let e4 = createDepEvent Tie e2 e3 0
     
-    let m1 = addMultipleEvents defaultMeasure [e1;e2;e3;e5]
+    let m1 = addMultipleEvents defaultMeasure [e0;e1;e2;e3;e4]
     let dMeasure1 = createDrawableMeasure Treble m1 50. 50. MusResources.measureWidthDefault MusResources.measureHeightDefault
     engraver.engraveMeasureAndEvents dMeasure1
 //-------------------------------------------------------------------------------

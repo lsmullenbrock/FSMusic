@@ -80,6 +80,7 @@
     <Compile Include="src\Draw\Engraver.fs" />
     <Compile Include="src\MusWindow\MusWindow.fs" />
     <Compile Include="test\Test.fs" />
+    <Compile Include="test\Scratchpad.fs" />
     <Compile Include="Main\Main.fs" />
   </ItemGroup>
   <ItemGroup>

@@ -126,6 +126,14 @@ type Inker(canvas:Canvas) =
             )
         this.addElemAtLocation dot (x + w * 1.25) y
 
+    /// Inks a tie facing down.
+    member this.inkDownTie x y w h =
+        this.drawImageFromLocation ImageLocations.slurDownImageLocation x y w h
+
+    /// Inks a tie facing up.
+    member this.inkUpTie x y w h =
+        this.drawImageFromLocation ImageLocations.slurUpImageLocation x y w h
+
     /// Draw a single ledger line.
     member this.inkLedgerLine x y w =
         this.createLineWidthHeight x y w 0.

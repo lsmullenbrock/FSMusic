@@ -35,3 +35,9 @@ let quarterRestImageLocation = currentLoc + "quarter_rest.png"
 let halfRestImageLocation = currentLoc + "half_rest.png"
 [<Literal>]
 let wholeRestImageLocation = currentLoc + "whole_rest.png"
+
+//Lines/Ties/Slurs
+[<Literal>]
+let slurUpImageLocation = currentLoc + "slur_up.png"
+[<Literal>]
+let slurDownImageLocation = currentLoc + "slur_down.png"

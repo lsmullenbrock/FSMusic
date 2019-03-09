@@ -9,3 +9,5 @@ let ``test window`` () =
 
     (new Application()).Run(window)
     |> ignore
+
+

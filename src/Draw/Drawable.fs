@@ -1,4 +1,12 @@
-﻿module Drawable
+﻿/// Eventually we need to add the concept of "precedence" with respect
+/// to what we need to align first as DependentEvents rely on IndependentEvents
+/// for their size, some of which may be in previous or later DrawableMeasures.
+///
+/// Will eventually set up a pipeline such that all IndependentEvents are sized and
+/// aligned before DependentEvents in the entire staff.
+///
+/// Generate Materials -> process IndependentEvents -> process DependentEvents -> Draw results
+module Drawable
 
 open MusicBase
 /// Temporary fix
@@ -30,7 +38,7 @@ let defaultDrawableMeasure = {dEvents=[];geom=defaultGeom}
 let defaultDrawableStaff = {measures=[];geom=defaultGeom}
 
 (*
-    These assignments are kept in case later refactoring is needed for scaling/etc
+    These assignments are kept for easy refactoring later/decoupling now
 *)
 //pitches
 let wholeNoteWidth, wholeNoteHeight = MusResources.wholeNoteheadWidthDefault, MusResources.wholeNoteheadHeightDefault
@@ -54,7 +62,7 @@ let timeSigWidth, timeSigHeight = MusResources.timeSigWidthDefault, MusResources
 let kerning = MusResources.kerning
 
 /// Helper func to create Geometry from x, y, w, h
-let createGeom x y w h : MusGeom = {x=x;y=y;w=w;h=h;orientation=UP}
+let createGeom x y w h orientation : MusGeom = {x=x;y=y;w=w;h=h;orientation=orientation}
 
 /// Wraps event into a DrawableEvent
 let createDrawableEvent event = {event=event; geom=defaultGeom}
@@ -64,10 +72,11 @@ let createDrawableEvent event = {event=event; geom=defaultGeom}
 let inline staffInterval p1 p2 = (distFromC0 p1) - (distFromC0 p2)
 
 /// Creates single LedgerLineEvent at given location
-let createDrawableLedgerLine x y w =
-    {event=LedgerLineEvent;geom=createGeom x y w 0.}
+let createDrawableLedgerLine target x y w =
+    let event = createDepEvent LedgerLine target target 0
+    {event=event;geom=createGeom x y w 0. UP}
 
-/// Creates multiple ledger lines.
+/// Creates multiple ledger lines and sets their MusGeoms.
 let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
     let mTop = measure.geom.y
     let mBottom = mTop + measure.geom.h
@@ -79,80 +88,81 @@ let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
         if pitchTop > mBottom then
             let diff = pitchTop - mBottom
             let numLines = diff / measureLineSpacing
-            [0. ..numLines + 1.]
+            [0. .. numLines + 1.]
             |> List.map(fun lineNum -> mBottom + lineNum * measureLineSpacing)
-            |> List.map(fun y -> createDrawableLedgerLine x y w)
+            |> List.map(fun y -> createDrawableLedgerLine p.event x y w)
         //Above staff
         else if pitchTop < mTop then
             let diff = mTop - pitchTop
             let numLines = diff / measureLineSpacing
-            [1. ..numLines]
+            [1. .. numLines]
             |> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
-            |> List.map(fun y -> createDrawableLedgerLine x y w)
+            |> List.map(fun y -> createDrawableLedgerLine p.event x y w)
         //No ledger lines needed
         else
             []
     //return
     result
 
-/// Creates a DrawableMeasureEvent from a regular MeasureEvent
-let private setDEventSize dEvent =
-    let w, h =
-        match dEvent.event with
-        | PitchEvent p ->
-            match p.value with
-            | Value.Whole ->
-                wholeNoteWidth, wholeNoteHeight
-            | Value.Half ->
-                halfNoteWidth, halfNoteHeight
-            | _ ->
-                filledNoteWidth, filledNoteHeight
-        | LedgerLineEvent ->
-            ledgerLineWidth, 0.
-        | RestEvent r ->
-            match r.value with
-            | Value.Eighth ->
-                eighthRestWidth, eighthRestHeight
-            | Value.Quarter ->
-                quarterRestWidth, quarterRestHeight
-            | Value.Half ->
-                halfRestWidth, halfRestHeight
-            | Value.Whole ->
-                wholeRestWidth, wholeRestHeight
-            | _ ->
-                Basic.log "%A unhandled by createDrawableMeasureEvent currently" r
-                0., 0.
-        | ClefEvent c ->
-            match c with
-            | Treble ->
-                trebleClefWidth, trebleClefHeight
-            | Bass ->
-                bassClefWidth, bassClefHeight
-            | NoClef ->
-                Basic.errMsg "NoClef handed to setDEventSize"
-                0., 0.
-        | KeyEvent k ->
-            Basic.log "%A unhandled by createDrawableMeasureEvent currently" k
-            0., 0.
-        | TimeSigEvent _ ->
-            timeSigWidth, timeSigHeight
-        | TieEvent _ ->
-            Basic.errMsg "Cannot set w/h of TieEvent yet"
-            0., 0.
-        | ErrorEvent e ->
-            Basic.errMsg "Error encountered! Error message: %A" (e.ToString())
-            0., 0.
-    //return
-    {dEvent with geom = {dEvent.geom with w=w; h=h}}
+(*
+    IndependentEvent MusGeom assignment funcs
+*)
 
-/// Maps setDEventSize over a list
-let private setAllDEventSizes measure =
-    measure.dEvents 
-    |> List.map setDEventSize
-    |> fun dList -> {measure with dEvents=dList}
+let private setIndpEventWidthHeight (dEvent:DrawableEvent) =
+    match dEvent.event.mEvent with
+    | IndependentEvent i ->
+        let w, h =
+            match i with
+            | PitchEvent p ->
+                match p.value with
+                | Value.Whole ->
+                    wholeNoteWidth, wholeNoteHeight
+                | Value.Half ->
+                    halfNoteWidth, halfNoteHeight
+                | _ ->
+                    filledNoteWidth, filledNoteHeight
+            | RestEvent r ->
+                match r.value with
+                | Value.Eighth ->
+                    eighthRestWidth, eighthRestHeight
+                | Value.Quarter ->
+                    quarterRestWidth, quarterRestHeight
+                | Value.Half ->
+                    halfRestWidth, halfRestHeight
+                | Value.Whole ->
+                    wholeRestWidth, wholeRestHeight
+                | _ ->
+                    Basic.log "%A unhandled by createDrawableMeasureEvent currently" r
+                    0., 0.
+            | ClefEvent c ->
+                match c with
+                | Treble ->
+                    trebleClefWidth, trebleClefHeight
+                | Bass ->
+                    bassClefWidth, bassClefHeight
+                | NoClef ->
+                    Basic.errMsg "NoClef handed to setDEventSize"
+                    0., 0.
+            | KeyEvent k ->
+                Basic.log "%A unhandled by createDrawableMeasureEvent currently" k
+                0., 0.
+            | TimeSigEvent _ ->
+                timeSigWidth, timeSigHeight
+            | ErrorEvent e ->
+                Basic.errMsg "Error encountered! Error message: %A" (e.ToString())
+                0., 0.
+        {dEvent with geom = {dEvent.geom with w=w; h=h}}
+    | _ -> 
+        // DependentEvent cases just need to be passed through
+        dEvent
 
+let private setMultipleIndpEventSizes (measure:DrawableMeasure) =
+    measure.dEvents
+    |> List.map setIndpEventWidthHeight
+    |> fun result -> {measure with dEvents = result}
+        
 /// Attempts to assign x-coords to a DrawableEvent list
-let assignEventXCoords (measure:DrawableMeasure) =
+let setIndpEventXCoords (measure:DrawableMeasure) =
     let initialX = measure.geom.x
     let rec xLoop resultList prevXPos prevWidth kerning (eventList:DrawableEvent list) =
         match eventList with
@@ -163,7 +173,7 @@ let assignEventXCoords (measure:DrawableMeasure) =
                     prevXPos
                 else 
                     prevXPos + prevWidth + kerning
-            let result = {hd with geom={hd.geom with x=newX}}
+            let result = {hd with geom = {hd.geom with x=newX}}
             xLoop (resultList@[result]) result.geom.x result.geom.w kerning tl 
         | _ ->
             resultList
@@ -171,8 +181,25 @@ let assignEventXCoords (measure:DrawableMeasure) =
     xLoop [] initialX 0. kerning measure.dEvents
     |> fun dList -> {measure with dEvents=dList}
 
+/// Gets the Y coord of a pitch
+let getPitchYCoords initY curClef pitch =
+    let staffDist = float<|staffInterval defaultPitch pitch
+    let dist = staffDist * pitchYSpacing
+    let midCY =
+        match curClef with
+        | Treble -> //count UP from MidC
+            initY + pitchYSpacing * 9.
+        | Bass -> //count DOWN from MidC
+            initY - pitchYSpacing * 3.
+        | NoClef ->
+            Basic.errMsg "Attempted to assign a Y coord to a Pitch with a None clef!"
+            Basic.errMsg "Returning midpointY of measure as middle C coord"
+            initY + pitchYSpacing * 6.
+    //return
+    midCY + dist
+
 /// Attempts to assign y-coords to a DrawableEvent list
-let assignEventYCoords prevClef (measure:DrawableMeasure) =
+let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
     let initialY = measure.geom.y
     //let measureWidth = measure.geom.x
     let measureMidpointY = (measure.geom.y + measure.geom.h) / 2.
@@ -185,87 +212,118 @@ let assignEventYCoords prevClef (measure:DrawableMeasure) =
         if c <> currentClef then 
             currentClef <- c
 
-    /// Gets the Y coord of a pitch
-    let getPitchYCoords initY curClef pitch =
-        let staffDist = float<|staffInterval defaultPitch pitch
-        let dist = staffDist * pitchYSpacing
-        let midCY =
-            match curClef with
-            | Treble -> //count UP from MidC
-                initY + pitchYSpacing * 9.
-            | Bass -> //count DOWN from MidC
-                initY - pitchYSpacing * 3.
-            | NoClef ->
-                Basic.errMsg "Attempted to assign a Y coord to a Pitch with a None clef!"
-                Basic.errMsg "Returning midpointY of measure as middle C coord"
-                initY + pitchYSpacing * 6.
-        //return
-        midCY + dist
-
     /// Assigns y Coords to DEvents
     let rec yLoop resultList initY (eventList:DrawableEvent list) =
         match eventList with
         | hd::tl ->
-            let y =
-                match hd.event with
-                | PitchEvent p ->
-                    let pY = getPitchYCoords initY currentClef p
-                    //check if pitch is above or below midpoint
-                    if pY >= measureMidpointY then
-                        hd.geom.orientation <- UP
-                    else 
-                        hd.geom.orientation <- DOWN
-                    //assign ledger lines
-                    ledgerLines <- ledgerLines@(createLedgerLines measure hd pY)
-                    pY
-                | LedgerLineEvent ->
-                    hd.geom.y
-                | RestEvent r ->
-                    match r.value with
-                    | Value.Half ->
-                        measureMidpointY + measureLineSpacing - halfRestHeight
-                    | Value.Eighth ->
-                        measureMidpointY + measureLineSpacing / 2.5
-                    | _ -> 
-                        measureMidpointY
-                | KeyEvent _ ->
-                    Basic.errMsg "Need to implement KeyEvent assignYCoords in DrawMusic!"
-                    initY
-                | ClefEvent c -> 
-                    checkClefUpdate c
-                    match c with
-                    | Treble ->
-                        initY - trebleClefYOffset
-                    | Bass ->
-                        initY
-                    | _ ->
-                        Basic.errMsg "Uncovered clef hit in assignYCoords.yLoop: %A" c
-                        initY
-                | TimeSigEvent _ ->
-                    initY - 20.
-                | TieEvent _ ->
-                    Basic.errMsg "Need to implement TieEvent in assignYCoords"
-                    0.
-                | ErrorEvent e ->
-                    Basic.errMsg "ErrorEvent %A can't be assigned a location." e
-                    0.
-            yLoop (resultList@[{hd with geom={hd.geom with y = y}}]) initY tl
+            let result =
+                match hd.event.mEvent with
+                | IndependentEvent i ->
+                    let y =
+                        match i with
+                        | PitchEvent p ->
+                            let pY = getPitchYCoords initY currentClef p
+                            //check if pitch is above or below midpoint
+                            if pY >= measureMidpointY then
+                                hd.geom.orientation <- UP
+                            else 
+                                hd.geom.orientation <- DOWN
+                            //assign ledger lines
+                            ledgerLines <- ledgerLines@(createLedgerLines measure hd pY)
+                            pY
+                        | RestEvent r ->
+                            match r.value with
+                            | Value.Half ->
+                                measureMidpointY + measureLineSpacing - halfRestHeight
+                            | Value.Eighth ->
+                                measureMidpointY + measureLineSpacing / 2.5
+                            | _ -> 
+                                measureMidpointY
+                        | KeyEvent _ ->
+                            Basic.errMsg "Need to implement KeyEvent assignYCoords in DrawMusic!"
+                            initY
+                        | ClefEvent c -> 
+                            checkClefUpdate c
+                            match c with
+                            | Treble ->
+                                initY - trebleClefYOffset
+                            | Bass ->
+                                initY
+                            | _ ->
+                                Basic.errMsg "Uncovered clef hit in assignYCoords.yLoop: %A" c
+                                initY
+                        | TimeSigEvent _ ->
+                            initY - 20.
+                        | ErrorEvent e ->
+                            Basic.errMsg "ErrorEvent %A can't be assigned a location." e
+                            0.
+                    {hd with geom={hd.geom with y=y}}
+                | DependentEvent _ -> // already assigned
+                    hd
+            yLoop (resultList@[result]) initY tl
         | _ ->
             resultList
     //return
     yLoop [] initialY measure.dEvents
     |> fun dList -> {measure with dEvents = dList@ledgerLines} //ledger lines can be appended to the end because they're already assigned geometries
 
+(*
+    DependentEvent MusGeom funcs
+*)
+let private findEventByID eID measure = 
+    List.find (fun e -> e.event.eID = eID) measure.dEvents
+
+let private getEventGeomByID eID measure = 
+    findEventByID eID measure
+    |> (fun e -> e.geom)
+
+/// All DependentEvent coords can be set at once because we already know all of it.
+let private setDependentEventGeom (measure:DrawableMeasure) (dEvent:DrawableEvent) =
+    match dEvent.event.mEvent with
+    | DependentEvent d ->
+        let originGeom = getEventGeomByID d.origin.eID measure
+        let targetGeom = getEventGeomByID d.target.eID measure
+        let result:DrawableEvent =
+            match d.dType with
+            | LedgerLine -> 
+                //already assigned a geometry
+                dEvent
+            | Tie ->
+                let x = originGeom.x
+                let y = originGeom.y
+                let w = targetGeom.x - x
+                let h = targetGeom.y - y
+                let orientation =  // needs to face opposite way of stem
+                    match originGeom.orientation with
+                    | UP -> DOWN
+                    | DOWN -> UP
+                {dEvent with geom = createGeom x y w h orientation}
+            | _ ->
+                Basic.errMsg "DependentEvent %A could not be assigned a MusGeom" d
+                dEvent
+        //return
+        result
+    | _ ->
+        // IndependentEvent cases already taken care of (!)
+        dEvent
+
+let private setMultipleDependentEventGeoms measure =
+    measure.dEvents
+    |> List.map (setDependentEventGeom measure)
+    |> fun result -> {measure with dEvents = result}
+
 /// Aligns events according to where they fall in the measure.
 let assignGeometries clef =
-    setAllDEventSizes
-    >> assignEventXCoords
-    >> (assignEventYCoords clef)
+    setMultipleIndpEventSizes
+    >> setIndpEventXCoords
+    >> (setIndpEventYCoords clef)
+    >> setMultipleDependentEventGeoms
 
 /// Creates DrawableMeasure out of given Measure.
 let createDrawableMeasure initialClef (measure:Measure) x y w h =
     let dEvents = measure |> List.map createDrawableEvent
-    let resultMeasure = {dEvents=dEvents; geom={x=x;y=y;w=w;h=h;orientation=UP}} |> (assignGeometries initialClef)
+    let resultMeasure = {dEvents=dEvents; geom=createGeom x y w h UP} |> (assignGeometries initialClef)
+    //test to see if the measure is wide enough or not
     let finalX = 
         List.last resultMeasure.dEvents
         |> fun e -> e.geom.x + e.geom.w
@@ -319,5 +377,5 @@ let createDrawableStaff (staff:Staff) x y w h : DrawableStaff =
             Basic.errMsg "verifyStaff failed for given staff: %A" staff
             []
     //return
-    {measures=measures;geom=createGeom x y w h}
+    {measures=measures;geom=createGeom x y w h UP}
     

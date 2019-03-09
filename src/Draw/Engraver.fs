@@ -11,8 +11,9 @@ type Engraver(canvas:Canvas) =
     /// Engraver tells Inker what to do
     member private __.inker = new Inker(canvas)
 
-    member __.stemLength = MusResources.stemLengthDefault
-    member __.dotSize = MusResources.dotSizeDefault
+    // May need adjustment
+    member private __.stemLength = MusResources.stemLengthDefault
+    member private __.dotSize = MusResources.dotSizeDefault
 
     /// Calls inker.clearCanvas()
     member this.clearCanvas () = this.inker.clearCanvas()
@@ -36,7 +37,6 @@ type Engraver(canvas:Canvas) =
             this.inker.inkFilledNoteheadPitch x y w h 
         match pitch.dotted with
         | true -> 
-            printfn "hit true in pitch.dotted"
             this.inker.inkDot x y w this.dotSize
         | _ ->
             ()
@@ -88,19 +88,19 @@ type Engraver(canvas:Canvas) =
         this.inker.inkLedgerLine x y w 
 
     /// Engraves a tie
-    member private this.engraveTieEvent geometry tie =
-        Basic.errMsg "Implement engraveTieEvent"
+    member private this.engraveTie geometry =
+        let {x=x;y=y;w=w;h=h} = geometry
+        match geometry.orientation with
+        | UP ->
+            this.inker.inkUpTie x y w h
+        | DOWN ->
+            this.inker.inkDownTie x y w h
 
-    /// (Attempts to) draw correct event.
-    member private this.engraveEvent (dEvent:DrawableEvent) =
-        let g = dEvent.geom
-        match dEvent.event with
+    /// Engrave IndependentEvent at given MusGeom
+    member private this.engraveIndpEvent (indpEvent:IndependentEvent) (g:MusGeom) =
+        match indpEvent with
         | PitchEvent p ->
             this.engravePitchEvent g p
-        | TieEvent t ->
-            this.engraveTieEvent g t
-        | LedgerLineEvent ->
-            this.engraveLedgerLine g
         | RestEvent r ->
             this.engraveRestEvent g r
         | KeyEvent k ->
@@ -112,6 +112,25 @@ type Engraver(canvas:Canvas) =
         | ErrorEvent e ->
             Basic.errMsg "Attempted to draw ErrorEvent: %A" e
 
+    member private this.engraveDepEvent (depEvent:DependentEvent) (g:MusGeom) =
+        match depEvent.dType with
+        | LedgerLine ->
+            this.engraveLedgerLine g
+        | Tie ->
+            this.engraveTie g
+        | _ ->
+            Basic.errMsg "DependentEvent %A could not be engraved" depEvent
+            ()
+
+    /// (Attempts to) draw correct event.
+    member private this.engraveEvent (dEvent:DrawableEvent) =
+        let g = dEvent.geom
+        match dEvent.event.mEvent with
+        | IndependentEvent i ->
+            this.engraveIndpEvent i g
+        | DependentEvent d ->
+            this.engraveDepEvent d g
+
     /// Draws given DrawableMeasure to given canvas, but does not draw any events.
     member this.engraveMeasure (dMeasure:DrawableMeasure) =
         let {x=x;y=y;h=h;w=w} = dMeasure.geom
@@ -122,3 +141,4 @@ type Engraver(canvas:Canvas) =
         this.engraveMeasure dMeasure
         List.map this.engraveEvent dMeasure.dEvents
         |> ignore
+

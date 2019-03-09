@@ -8,4 +8,4 @@ let log = printfn
 let errMsg = printfn
 
 /// Properly implement error handing later?
-type MusError = MusErr of string
+type MusError = string
