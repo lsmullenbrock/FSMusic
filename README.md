@@ -1,3 +1,6 @@
 # FSMusic_Test1
 A toy music engraving program written in F#.
 Not meant for anything other than toy use for now.
+
+line_counter.exe is exactly what it says it is.
+Source for it can be found here: http://fssnip.net/7W4/title/Line-Counter-for-FSFSX-files

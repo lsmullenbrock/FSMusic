@@ -74,8 +74,8 @@
     <None Include="src\images\whole_rest.png" />
     <Compile Include="src\Music\MusResources.fs" />
     <Compile Include="src\Music\MusicBase.fs" />
-    <Compile Include="src\Draw\Drawable.fs" />
     <Compile Include="src\Draw\DrawUtils.fs" />
+    <Compile Include="src\Draw\Drawable.fs" />
     <Compile Include="src\Draw\Inker.fs" />
     <Compile Include="src\Draw\Engraver.fs" />
     <Compile Include="src\MusWindow\MusWindow.fs" />

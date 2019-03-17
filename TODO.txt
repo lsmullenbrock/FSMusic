@@ -3,17 +3,26 @@ WHY?!?!?!
 
 
 @HACK EventID
-EventIDs need to be implemented in a non-trash way :)
+EventIDs need to eventually be implemented in a better way,
+perhaps through an IDManager of some sort.
 
 @TODO Ties
-Dependent on EventID? Is this necessary?
+Currently not drawing.
 
 @TODO Slurs
-Append ties to be slurs
+Extend ties into slurs.
+Rework origin/target into a list of targets?
 
 @TODO Accidentals
 Major work to be done here. Not even implemented in drawing whatsoever.
+Must be a DependentEvent, where origin=target.
 
 @TODO Keysigs
 Major work for drawing keysigs based on Accidentals
 
+@TODO Multiple measures per staff
+Major rework will need to be done for assuring clefs, ties, keysigs etc
+will carry over from measure to measure.
+
+@TODO Multiple staves
+Long-term goal.

@@ -69,6 +69,9 @@ let halfRestHeightDefault = halfNoteheadHeightDefault * 0.4
 let wholeRestWidthDefault = halfRestWidthDefault
 let wholeRestHeightDefault = halfRestHeightDefault
 
+//ties
+let tieHeightDefault = filledNoteheadHeightDefault / 1.5
+
 //spacing
 let kerning = measureWidthDefault * 0.03 * SIZE_MULTIPLIER
 

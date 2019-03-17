@@ -18,8 +18,8 @@ let test (engraver:Engraver) =
 
     let e0 = createIndpEvent Bass 0
     let e1 = defaultTimeSigEvent
-    let e2 = createIndpEvent {defaultPitch with octave = 3} 0
-    let e3 = createIndpEvent {defaultPitch with octave = 3} 0
+    let e2 = createIndpEvent {defaultPitch with octave = 4} 0
+    let e3 = createIndpEvent {defaultPitch with octave = 4} 0
 
     //ties
     let e4 = createDepEvent Tie e2 e3 0

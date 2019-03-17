@@ -161,6 +161,64 @@ let isClef (item:obj) =
 /// Type is meant to be simple/"dumb".
 type Measure = MeasureEvent list
 
+/// Tries to find the lastmost clef in a measure, returns an option (Some cleff/None)
+let tryFindPrevClef (measure:Measure) = 
+    measure 
+    |> List.tryFindBack(
+        fun a ->
+        match a.mEvent with
+        | IndependentEvent i ->
+            match i with
+            | ClefEvent _ -> 
+                true
+            | _ -> 
+                false
+        | _ -> 
+            false
+    ) |> function
+        | Some m ->
+            m.mEvent
+            |> function
+                | IndependentEvent i ->
+                    match i with
+                    | ClefEvent c ->
+                        Some c
+                    | _ ->
+                        None
+                | _ ->
+                    None
+        | _ ->
+            None
+
+/// Tries to find the first clef in measure
+let tryFindFirstClef (measure:Measure) =
+    measure 
+    |> List.tryFind(
+        fun a ->
+        match a.mEvent with
+        | IndependentEvent i ->
+            match i with
+            | ClefEvent _ -> 
+                true
+            | _ -> 
+                false
+        | _ -> 
+            false
+    ) |> function
+        | Some m ->
+            m.mEvent
+            |> function
+                | IndependentEvent i ->
+                    match i with
+                    | ClefEvent c ->
+                        Some c
+                    | _ ->
+                        None
+                | _ ->
+                    None
+        | _ ->
+            None
+
 /// Adds single event to given measure
 let addEvent (measure:Measure) (event:MeasureEvent) =
     let id =
@@ -172,6 +230,7 @@ let addEvent (measure:Measure) (event:MeasureEvent) =
             // length will change as it is processed in later funcs
             e.eID + 1
     event.eID <- id
+    //return
     measure@[event]
 
 /// Adds more than one event to a measure
