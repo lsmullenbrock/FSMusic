@@ -6,13 +6,6 @@ WHY?!?!?!
 EventIDs need to eventually be implemented in a better way,
 perhaps through an IDManager of some sort.
 
-@TODO Ties
-Currently not drawing.
-
-@TODO Slurs
-Extend ties into slurs.
-Rework origin/target into a list of targets?
-
 @TODO Accidentals
 Major work to be done here. Not even implemented in drawing whatsoever.
 Must be a DependentEvent, where origin=target.
@@ -23,6 +16,12 @@ Major work for drawing keysigs based on Accidentals
 @TODO Multiple measures per staff
 Major rework will need to be done for assuring clefs, ties, keysigs etc
 will carry over from measure to measure.
+
+@TODO Slurs
+Extend ties into slurs.
+Rework origin/target into a list of targets?
+Slurs will need a lot of geometric mangling to get them to work.
+Put on back burner for now.
 
 @TODO Multiple staves
 Long-term goal.

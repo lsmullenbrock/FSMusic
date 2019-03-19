@@ -72,6 +72,7 @@
     <None Include="src\images\treble_clef.png" />
     <None Include="src\images\whole_note.png" />
     <None Include="src\images\whole_rest.png" />
+    <Compile Include="src\Music\EventID.fs" />
     <Compile Include="src\Music\MusResources.fs" />
     <Compile Include="src\Music\MusicBase.fs" />
     <Compile Include="src\Draw\DrawUtils.fs" />

@@ -70,13 +70,10 @@ let createGeom x y w h orientation : MusGeom = {x=x;y=y;w=w;h=h;orientation=orie
 /// Wraps event into a DrawableEvent
 let createDrawableEvent event = {event=event; geom=defaultGeom}
 
-/// Used to calculate value interval in staff lines and spaces between two pitches.
-/// Negative distance means p1 is below p2 on the staff.
-let inline staffInterval p1 p2 = (distFromC0 p1) - (distFromC0 p2)
 
 /// Creates single LedgerLineEvent at given location
 let createDrawableLedgerLine target x y w =
-    let event = createDepEvent LedgerLine target target 0
+    let event = createLedgerLine target 0
     {event=event;geom=createGeom x y w 0. UP}
 
 /// Creates multiple ledger lines and sets their MusGeoms.
@@ -98,7 +95,7 @@ let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
         else if pitchTop < mTop then
             let diff = mTop - pitchTop
             let numLines = diff / measureLineSpacing
-            [1. .. numLines]
+            [1. .. numLines - 1.]
             |> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
             |> List.map(fun y -> createDrawableLedgerLine p.event x y w)
         //No ledger lines needed
@@ -263,6 +260,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
         if c <> currentClef then 
             currentClef <- c
 
+    /// Calcs actual Y coord of IndependentEvent
     let calcIndpEventY initY (dEvent:DrawableEvent) indpEvent =
         match indpEvent with
         | PitchEvent p ->
@@ -292,15 +290,16 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
     /// Only assign Y Coords to IndependentEvents
     let assignEvent initY dEvent =
         match dEvent.event.mEvent with
-            | IndependentEvent i ->
-                let y = calcIndpEventY initY dEvent i
-                //return
-                {dEvent with geom={dEvent.geom with y=y}}
-            | _ ->
-                //assigned later
-                //return
-                dEvent
-
+        | IndependentEvent i ->
+            let y = calcIndpEventY initY dEvent i
+            //return
+            {dEvent with geom={dEvent.geom with y=y}}
+        | _ ->
+            //DependentEvents assigned later
+            //return
+            dEvent
+    
+    /// Assign multiple Y Coords to IndependentEvents
     let assignFold initY eventList =
         List.fold (fun acc elem -> acc@[assignEvent initY elem]) [] eventList
 
@@ -311,16 +310,18 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
 (*
     DependentEvent MusGeom funcs
 *)
-let private findEventByID eID measure = 
+/// Returns a DrawableEvent given an EventID
+let private findEventByID measure eID = 
     List.find (fun e -> e.event.eID = eID) measure.dEvents
 
-let private getEventGeomByID eID measure = 
-    findEventByID eID measure
+/// Returns a MusGeom given an EventID
+let private getEventGeomByID measure eID = 
+    findEventByID measure eID
     |> (fun e -> e.geom)
 
-let private calcTieGeom originGeom targetGeom =
-    //let x = originGeom.x
-    //let y = originGeom.y
+let private calcTieGeom measure tie =
+    let originGeom = getEventGeomByID measure tie.targets.[0].eID
+    let targetGeom = getEventGeomByID measure tie.targets.[1].eID
     let x = originGeom.x + originGeom.w
     let y, orientation =  // needs to face opposite way of stem
         match originGeom.orientation with
@@ -334,24 +335,63 @@ let private calcTieGeom originGeom targetGeom =
     let h = tieHeight
     //return
     (createGeom x y w h orientation)
+
+let private calcSlurGeom measure slur =
+    let drawableTargets =
+        slur.targets
+        |> List.map(fun t -> t.eID)
+        |> List.sort //just in case
+        |> List.map(fun e -> findEventByID measure e)
+
+    //individually figure out each coord
+    //lowest eID will be the leftmost and thus have the correct
+    //starting coords
+    let x, y =
+        drawableTargets
+        |> List.sortBy(fun t -> t.geom.x)
+        |> List.head
+        |> fun t -> t.geom.x, t.geom.y
+
+
+    //width will be the rightmost, and thus the highest x minus the lowest x
+    let w =
+        drawableTargets
+        |> List.maxBy(fun t -> t.geom.x)
+        |> fun t -> t.geom.x - x
+    
+    //we will have to rotate the slur image to actually get the correct
+    //alignment
+    //height will be the heighest y minus the starting y
+    //negative y indicates DOWN orientation
+    let h =
+        let highest =
+            drawableTargets
+            |> List.maxBy(fun t -> t.geom.y + t.geom.h)
+            |> fun t -> t.geom.y + t.geom.h
+        (highest - y)
+
+    let orientation = UP
+    //return
+    (createGeom x y w h orientation)
     
 /// All DependentEvent coords can be set at once because we already know all of it.
 let private setDependentEventGeom (measure:DrawableMeasure) (dEvent:DrawableEvent) =
     match dEvent.event.mEvent with
     | DependentEvent d ->
-        let originGeom = getEventGeomByID d.origin.eID measure
-        let targetGeom = getEventGeomByID d.target.eID measure
         let result:DrawableEvent =
             match d.dType with
             | LedgerLine -> 
                 //already assigned a geometry
                 dEvent
-            | Tie ->
-                let geom = calcTieGeom originGeom targetGeom
+            | Slur ->
+                let geom = calcSlurGeom measure d
                 {dEvent with geom = geom}
-            | _ ->
-                Basic.errMsg "DependentEvent %A could not be assigned a MusGeom" d
-                dEvent
+            | Tie ->
+                let geom = calcTieGeom measure d
+                {dEvent with geom = geom}
+            //| _ ->
+            //    Basic.errMsg "DependentEvent %A could not be assigned a MusGeom" d
+            //    dEvent
         //return
         result
     | _ ->

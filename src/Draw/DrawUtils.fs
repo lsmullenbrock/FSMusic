@@ -22,10 +22,10 @@ let inline loadImageFile file =
 /// Helper function to create a Line object.
 let inline createLine x1 y1 x2 y2 =
     new Line(
-        X1 = x1, 
-        Y1 = y1, 
-        X2 = x2, 
-        Y2 = y2, 
+        X1 = x1,
+        Y1 = y1,
+        X2 = x2,
+        Y2 = y2,
         Stroke = Brushes.Black, 
         StrokeThickness = 2.
     )

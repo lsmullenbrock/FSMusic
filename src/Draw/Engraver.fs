@@ -96,6 +96,16 @@ type Engraver(canvas:Canvas) =
         | DOWN ->
             this.inker.inkDownTie x y w h
 
+    /// Engraves a slur.
+    member private this.engraveSlur geometry =
+        //need to transform 
+        let {x=x;y=y;w=w;h=h} = geometry
+        match geometry.orientation with
+        | UP ->
+            this.inker.inkUpSlur x y w h
+        | DOWN ->
+            this.inker.inkDownSlur x y w h
+
     /// Engrave IndependentEvent at given MusGeom
     member private this.engraveIndpEvent (indpEvent:IndependentEvent) (g:MusGeom) =
         match indpEvent with
@@ -118,9 +128,8 @@ type Engraver(canvas:Canvas) =
             this.engraveLedgerLine g
         | Tie ->
             this.engraveTie g
-        | _ ->
-            Basic.errMsg "DependentEvent %A could not be engraved" depEvent
-            ()
+        | Slur ->
+            this.engraveSlur g
 
     /// (Attempts to) draw correct event.
     member private this.engraveEvent (dEvent:DrawableEvent) =

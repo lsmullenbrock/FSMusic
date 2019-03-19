@@ -1,4 +1,6 @@
 ﻿module MusicBase
+open EventID
+
 /// Octave to be paired with Pitch
 type Octave = int
 /// Indicates if pitch/rest is dotted.
@@ -79,9 +81,6 @@ let createPitch note alteration octave value dotted =
 let createTimeSig numerator denominator =
     { numerator = numerator; denominator = denominator }
 
-/// @HACK: fix this trash!
-type EventID = int
-
 type IndependentEvent = 
     | PitchEvent of Pitch
     | RestEvent of Rest
@@ -109,8 +108,7 @@ and MEvent =
     | DependentEvent of DependentEvent
 and DependentEvent =
     { dType: DependentEventType
-      origin: MeasureEvent
-      target: MeasureEvent }
+      targets: MeasureEvent list }
 
 /// Helper func
 let createMeasureEvent mEvent eID =
@@ -137,9 +135,18 @@ let createIndpEvent (item:obj) eID : MeasureEvent =
         ) |> IndependentEvent
     createMeasureEvent event eID
 
-let createDepEvent dType origin target eID =
-    let event = {dType=dType;origin=origin;target=target} |> DependentEvent
+let private createDepEvent dType targets eID =
+    let event = {dType=dType;targets=targets} |> DependentEvent
     createMeasureEvent event eID
+
+let createLedgerLine target eID =
+    createDepEvent LedgerLine [target] eID
+
+let createTie origin target eID =
+    createDepEvent Tie [origin; target] eID
+
+let createSlur targets eID =
+    createDepEvent Slur targets eID
 
 
 /// (Tries to) create(s) multiple events from a list of obj's.
@@ -151,6 +158,33 @@ let createMultipleEvents (items:obj list) = ()
 /// Must be careful to properly cast recieving let binding/etc.
 let unboxEvent (event:MeasureEvent) = 
     unbox event
+
+/// Helper for ClefEvents
+let isClefEvent(event:MeasureEvent) =
+    match event.mEvent with
+    | IndependentEvent i ->
+        match i with
+        | ClefEvent _ ->
+            true
+        | _ ->
+            false
+    | _ ->
+        false
+
+/// Get clef embedded in MeasureEvent
+let tryGetClefFromEvent(event:MeasureEvent) =
+    let result = 
+        match event.mEvent with
+        | IndependentEvent i ->
+            match i with
+            | ClefEvent c ->
+                Some c
+            | _ -> 
+                None
+        | _ ->
+            None
+    //return
+    result
 
 /// Helper func for clefs
 let isClef (item:obj) =
@@ -164,58 +198,20 @@ type Measure = MeasureEvent list
 /// Tries to find the lastmost clef in a measure, returns an option (Some cleff/None)
 let tryFindPrevClef (measure:Measure) = 
     measure 
-    |> List.tryFindBack(
-        fun a ->
-        match a.mEvent with
-        | IndependentEvent i ->
-            match i with
-            | ClefEvent _ -> 
-                true
-            | _ -> 
-                false
-        | _ -> 
-            false
-    ) |> function
+    |> List.tryFindBack(isClefEvent) 
+    |> function
         | Some m ->
-            m.mEvent
-            |> function
-                | IndependentEvent i ->
-                    match i with
-                    | ClefEvent c ->
-                        Some c
-                    | _ ->
-                        None
-                | _ ->
-                    None
+            tryGetClefFromEvent m
         | _ ->
             None
 
 /// Tries to find the first clef in measure
 let tryFindFirstClef (measure:Measure) =
     measure 
-    |> List.tryFind(
-        fun a ->
-        match a.mEvent with
-        | IndependentEvent i ->
-            match i with
-            | ClefEvent _ -> 
-                true
-            | _ -> 
-                false
-        | _ -> 
-            false
-    ) |> function
+    |> List.tryFind(isClefEvent) 
+    |> function
         | Some m ->
-            m.mEvent
-            |> function
-                | IndependentEvent i ->
-                    match i with
-                    | ClefEvent c ->
-                        Some c
-                    | _ ->
-                        None
-                | _ ->
-                    None
+            tryGetClefFromEvent m
         | _ ->
             None
 
@@ -225,10 +221,10 @@ let addEvent (measure:Measure) (event:MeasureEvent) =
         match List.tryLast measure with
         | None -> 
             0
-        | Some e ->
+        | Some _ ->
             // This is preferred over measure.Length as the
             // length will change as it is processed in later funcs
-            e.eID + 1
+            EventIDManager.Instance.generateID()
     event.eID <- id
     //return
     measure@[event]
@@ -245,16 +241,19 @@ let addMeasure staff measure : Staff = staff@[measure]
 let addMultipleMeasures staff measures : Staff = List.fold addMeasure staff measures
 /// Calculates interval from C0 (lowest Midi note)
 let distFromC0 p = (ordinal p.note) + p.octave * 7 + 1
+/// Used to calculate value interval in staff lines and spaces between two pitches.
+/// Negative distance means p1 is below p2 on the staff.
+let inline staffInterval p1 p2 = (distFromC0 p1) - (distFromC0 p2)
 /// Used to calculate the actual interval between two pitches.
 /// Negative result means p2 is below p1.
 let inline interval p1 p2 =
-    let p1Position = distFromC0 p1
-    let p2Position = distFromC0 p2
-    let dist = p1Position - p2Position
+    let dist = staffInterval p1 p2
     if dist >= 0 then
         dist + 1
     else
         dist - 1
+
+
 
 //Default events/etc
 let defaultRest = createRest Value.Quarter false

@@ -134,6 +134,30 @@ type Inker(canvas:Canvas) =
     member this.inkUpTie x y w h =
         this.drawImageFromLocation ImageLocations.slurUpImageLocation x y w h
 
+    /// Inks a slur facing up.
+    ///
+    /// TODO: Finsh implementation. On back burner for now.
+    /// Move the math up to engraver...
+    member this.inkUpSlur x y w h =
+        let angle = System.Math.Atan(h/w) * (180./System.Math.PI)
+        let transform = RotateTransform(angle)
+        let image = DrawUtils.createImage ImageLocations.slurUpImageLocation 100. 100.
+        let newWidth = sqrt(h ** 2. + w ** 2.) + MusResources.filledNoteheadWidthDefault
+        let newY = y
+        let newX = x //- MusResources.filledNoteheadWidthDefault / 2.5
+        image.RenderTransform <- transform
+        image.Width <- newWidth
+        image.Height <- h
+        printfn "angle: %A, w: %A, newWidth: %A, h: %A, x: %A, newY: %A" angle w newWidth h x newY
+        this.addImage image newX newY
+
+    /// Inks a slur facing down.
+    ///
+    /// TODO: Finsh implementation. On back burner for now.
+    member this.inkDownSlur x y w h =
+        
+        this.drawImageFromLocation ImageLocations.slurUpImageLocation x y w h
+
     /// Draw a single ledger line.
     member this.inkLedgerLine x y w =
         this.createLineWidthHeight x y w 0.
