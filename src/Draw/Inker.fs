@@ -182,4 +182,4 @@ type Inker(canvas:Canvas) =
     /// Draw TimeSig event
     member this.inkTimeSig n d x y w h =
         this.writeTextToCanvas n x y w h
-        this.writeTextToCanvas d x (y+h) w h
+        //this.writeTextToCanvas d x (y+h) w h

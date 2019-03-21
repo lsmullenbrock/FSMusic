@@ -7,8 +7,9 @@
 ///
 /// Generate Materials -> process IndependentEvents -> process DependentEvents -> Draw results
 module Drawable
-
 open MusicBase
+open EventID
+
 /// Temporary fix
 type Orientation = UP | DOWN
 /// Holds geometry data for drawble objects
@@ -67,13 +68,13 @@ let kerning = MusResources.kerning
 /// Helper func to create Geometry from x, y, w, h
 let createGeom x y w h orientation : MusGeom = {x=x;y=y;w=w;h=h;orientation=orientation}
 
-/// Wraps event into a DrawableEvent
+/// Wraps event into a DrawableEvent with a defaultGeom of {0;0;0;0}
 let createDrawableEvent event = {event=event; geom=defaultGeom}
 
 
 /// Creates single LedgerLineEvent at given location
 let createDrawableLedgerLine target x y w =
-    let event = createLedgerLine target 0
+    let event = createLedgerLine target defaultEventID
     {event=event;geom=createGeom x y w 0. UP}
 
 /// Creates multiple ledger lines and sets their MusGeoms.
@@ -244,7 +245,7 @@ let private getClefYCoords initY clef =
 
 /// Gets TimeSig's Y-coords
 let private getTimeSigYCoords initY =
-    initY - 20.
+    initY
 
 /// Attempts to assign y-coords to a DrawableEvent list
 let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
@@ -310,14 +311,20 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
 (*
     DependentEvent MusGeom funcs
 *)
-/// Returns a DrawableEvent given an EventID
+/// Returns a DrawableEvent from a measure given an EventID 
 let private findEventByID measure eID = 
     List.find (fun e -> e.event.eID = eID) measure.dEvents
+
+/// Returns a DrawableEvent from a DrawableStaff given an EventID
+let private findEventInStaff (staff:DrawableStaff) eID = 
+    [for measure in staff.measures do yield findEventByID measure eID]
+    |> List.head
+    
 
 /// Returns a MusGeom given an EventID
 let private getEventGeomByID measure eID = 
     findEventByID measure eID
-    |> (fun e -> e.geom)
+    |> fun e -> e.geom
 
 let private calcTieGeom measure tie =
     let originGeom = getEventGeomByID measure tie.targets.[0].eID
@@ -351,7 +358,6 @@ let private calcSlurGeom measure slur =
         |> List.sortBy(fun t -> t.geom.x)
         |> List.head
         |> fun t -> t.geom.x, t.geom.y
-
 
     //width will be the rightmost, and thus the highest x minus the lowest x
     let w =

@@ -220,7 +220,7 @@ let addEvent (measure:Measure) (event:MeasureEvent) =
     let id =
         match List.tryLast measure with
         | None -> 
-            0
+            defaultEventID
         | Some _ ->
             // This is preferred over measure.Length as the
             // length will change as it is processed in later funcs
@@ -262,11 +262,11 @@ let defaultClef = Clef.Treble
 let defaultKey = { root = Note.C; alteration = Alteration.Natural; quality = Quality.Major }
 let defaultTimeSig = createTimeSig 4 Value.Quarter
 
-let defaultRestEvent = createIndpEvent defaultRest 0
-let defaultPitchEvent = createIndpEvent defaultPitch 0
-let defaultClefEvent = createIndpEvent defaultClef 0
-let defaultKeyEvent = createIndpEvent defaultKey 0
-let defaultTimeSigEvent = createIndpEvent defaultTimeSig 0
+let defaultRestEvent = createIndpEvent defaultRest defaultEventID
+let defaultPitchEvent = createIndpEvent defaultPitch defaultEventID
+let defaultClefEvent = createIndpEvent defaultClef defaultEventID
+let defaultKeyEvent = createIndpEvent defaultKey defaultEventID
+let defaultTimeSigEvent = createIndpEvent defaultTimeSig defaultEventID
 
 let defaultMeasure:Measure = []
 

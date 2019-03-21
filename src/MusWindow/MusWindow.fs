@@ -6,6 +6,7 @@ open System.Windows.Controls
 open MusicBase
 open Engraver
 open Drawable
+open EventID
 
 /// Helper func to make adding elements easier.
 let addControlsToPanel (panel:#Panel) controlList = 
@@ -16,17 +17,16 @@ let addControlsToPanel (panel:#Panel) controlList =
 let test (engraver:Engraver) =
     engraver.clearCanvas()
 
-    let e0 = createIndpEvent Treble 0
+    let e0 = createIndpEvent Treble defaultEventID
     let e1 = defaultTimeSigEvent
-    let e2 = createIndpEvent defaultPitch 0
-    let e3 = createIndpEvent {defaultPitch with note = Note.D} 0
-    let e4 = createIndpEvent {defaultPitch with note = Note.A; octave = 3} 0
+    let e2 = createIndpEvent defaultPitch defaultEventID
+    let e3 = createIndpEvent {defaultPitch with note = Note.D} defaultEventID
+    let e4 = createIndpEvent {defaultPitch with note = Note.A; octave = 3} defaultEventID
     
     let m1 = addMultipleEvents defaultMeasure [e0;e1;e2;e3;e4]
     let dMeasure1 = createDrawableMeasure Treble m1 100. 100. MusResources.measureWidthDefault MusResources.measureHeightDefault
     engraver.engraveMeasureAndEvents dMeasure1
 //-------------------------------------------------------------------------------
-
 
 let makeWindow width height =
     let window = 

@@ -1,18 +1,31 @@
 ﻿module EventID
 
-/// @HACK: come up with better implementation
-type EventID = int
+/// Tracks identity of an Event
+/// @HACK: come up with more robust implementation
+type EventID = EventID of int
+    
+let defaultEventID = EventID 0
+
+let inline private (+.) (EventID a) (EventID b) = EventID(a + b)
 
 /// Singleton to generate IDs for Events
 type EventIDManager private () =
-    let mutable currentID : EventID = 0
+        
+    let mutable currentID = defaultEventID
     static let instance = EventIDManager()
 
     static member Instance = instance
 
-    member __.generateID() =
+    /// Operator definition
+
+    /// Simply increments IDs for now
+    member private __.advanceID () =
+        currentID <- currentID +. (EventID 1)
+
+    member this.generateID () =
         let cur = currentID
-        currentID <- currentID + 1
+        this.advanceID ()
+        /// return ID
         cur
 
     member __.getCurrentID () = currentID

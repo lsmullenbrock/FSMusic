@@ -64,7 +64,11 @@ type Engraver(canvas:Canvas) =
 
     /// Engraves TimeSig at given location
     member private this.engraveTimeSigEvent geom timeSig = 
-        let {x=x;y=y;w=w;h=h} = geom
+        //let {x=x;y=y;w=w;h=h} = geom
+        let x = geom.x
+        let w = geom.w
+        let h = geom.h
+        let y = geom.y
         this.inker.inkTimeSig (timeSig.numerator|>string) (timeSig.denominator|>int|>string) x y w h
 
     ///@TODO: Implement

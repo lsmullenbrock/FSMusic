@@ -1,10 +1,8 @@
 ﻿VISUAL STUDIO DOES NOT SUPPORT TASKS FOR F#
 WHY?!?!?!
 
-
-@HACK EventID
-EventIDs need to eventually be implemented in a better way,
-perhaps through an IDManager of some sort.
+@TODO TimeSigs
+Get TimeSigs to draw properly
 
 @TODO Accidentals
 Major work to be done here. Not even implemented in drawing whatsoever.
@@ -25,3 +23,8 @@ Put on back burner for now.
 
 @TODO Multiple staves
 Long-term goal.
+
+@HACK EventID
+Implemented with EventIDManager.
+Will need to revisit later to make more robust.
+question asked at: https://stackoverflow.com/questions/55267264/restricting-operator-overloading-to-a-single-class
