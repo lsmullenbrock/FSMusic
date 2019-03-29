@@ -54,7 +54,7 @@ type Engraver(canvas:Canvas) =
         | Value.Eighth ->
             this.inker.inkEighthRest x y w h
         | _ ->
-            Basic.errMsg "engraveRestEvent does not currenlty handle %A Value rests! :(" rest.value
+            errMsg "engraveRestEvent does not currenlty handle %A Value rests! :(" rest.value
             ()
         match rest.dotted with
         | true ->
@@ -73,7 +73,7 @@ type Engraver(canvas:Canvas) =
 
     ///@TODO: Implement
     member private this.engraveKeyEvent geometry keyEvent = 
-        Basic.errMsg "Engraver.engraveKeyEvent is not currently implemented"
+        errMsg "Engraver.engraveKeyEvent is not currently implemented"
         ()
 
     /// Engraves a given clef at a given location
@@ -85,7 +85,7 @@ type Engraver(canvas:Canvas) =
         | Bass ->
             this.inker.inkBassClef x y w h
         | NoClef ->
-            Basic.errMsg "Engraver.engraveClefEvent hit NoClef match case given event: %A" clef
+            errMsg "Engraver.engraveClefEvent hit NoClef match case given event: %A" clef
     /// Engraves a single ledger line at a givent location
     member private this.engraveLedgerLine geometry =
         let {x=x;y=y;w=w} = geometry
@@ -124,7 +124,7 @@ type Engraver(canvas:Canvas) =
         | TimeSigEvent t ->
             this.engraveTimeSigEvent g t
         | ErrorEvent e ->
-            Basic.errMsg "Attempted to draw ErrorEvent: %A" e
+            errMsg "Attempted to draw ErrorEvent: %A" e
 
     member private this.engraveDepEvent (depEvent:DependentEvent) (g:MusGeom) =
         match depEvent.dType with
@@ -134,6 +134,8 @@ type Engraver(canvas:Canvas) =
             this.engraveTie g
         | Slur ->
             this.engraveSlur g
+        | Accidental _ ->
+            errMsg "Implement Engraver.engraveAccidental!"
 
     /// (Attempts to) draw correct event.
     member private this.engraveEvent (dEvent:DrawableEvent) =

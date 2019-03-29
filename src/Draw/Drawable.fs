@@ -10,8 +10,9 @@ module Drawable
 open MusicBase
 open EventID
 
-/// Temporary fix
+/// May need to expand at some point
 type Orientation = UP | DOWN
+
 /// Holds geometry data for drawble objects
 type MusGeom =
     { x: float
@@ -19,10 +20,12 @@ type MusGeom =
       w: float
       h: float
       mutable orientation: Orientation }
+
 /// Couples Geometry type with MeasureEvent type.
 type DrawableEvent =
     { event: MeasureEvent
       geom: MusGeom }
+
 /// Measure that can be drawn at a Geometry coordinate.
 type DrawableMeasure =
     { dEvents: DrawableEvent list
@@ -71,7 +74,6 @@ let createGeom x y w h orientation : MusGeom = {x=x;y=y;w=w;h=h;orientation=orie
 /// Wraps event into a DrawableEvent with a defaultGeom of {0;0;0;0}
 let createDrawableEvent event = {event=event; geom=defaultGeom}
 
-
 /// Creates single LedgerLineEvent at given location
 let createDrawableLedgerLine target x y w =
     let event = createLedgerLine target defaultEventID
@@ -108,7 +110,7 @@ let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
 (*
     IndependentEvent MusGeom assignment funcs
 *)
-
+/// Assign Pitch MusGeom w/h
 let assignPitchWidthHeight (pitch:Pitch) =
     match pitch.value with
     | Value.Whole ->
@@ -118,6 +120,7 @@ let assignPitchWidthHeight (pitch:Pitch) =
     | _ ->
         filledNoteWidth, filledNoteHeight
 
+/// Assign Rest MusGeom w/h
 let assignRestWidthHeight (rest:Rest) =
     match rest.value with
     | Value.Eighth ->
@@ -129,9 +132,10 @@ let assignRestWidthHeight (rest:Rest) =
     | Value.Whole ->
         wholeRestWidth, wholeRestHeight
     | _ ->
-        Basic.log "%A unhandled by createDrawableMeasureEvent currently" rest
+        log "%A unhandled by createDrawableMeasureEvent currently" rest
         0., 0.
 
+/// Assign Clef MusGeom w/h
 let assignClefWidthHeight =
     function
     | Treble ->
@@ -139,17 +143,19 @@ let assignClefWidthHeight =
     | Bass ->
         bassClefWidth, bassClefHeight
     | NoClef ->
-        Basic.errMsg "NoClef handed to setDEventSize"
+        errMsg "NoClef handed to setDEventSize"
         0., 0.
 
 /// Implement
 let assignKeyWidthHeight (k:Key) =
-    Basic.log "%A unhandled by createDrawableMeasureEvent currently" k
+    log "%A unhandled by createDrawableMeasureEvent currently" k
     0., 0.
 
-let assignErrorWidthHeight (e:Basic.MusError) =
-    Basic.errMsg "Error encountered! Error message: %A" (e.ToString())
+/// Default for ErrorEvents is 0.0/0.0 w/h
+let assignErrorWidthHeight (e:MusError) =
+    errMsg "Error encountered! Error message: %A" (e.ToString())
     0., 0.
+
 /// Sets Width/Height properties of given IndependentEvent
 let private setIndpEventWidthHeight (dEvent:DrawableEvent) =
     match dEvent.event.mEvent with
@@ -174,6 +180,7 @@ let private setIndpEventWidthHeight (dEvent:DrawableEvent) =
         // DependentEvent cases just need to be passed through
         dEvent
 
+/// Takes a measure and sets sizes for IndependentEvents in a measure
 let private setMultipleIndpEventSizes (measure:DrawableMeasure) =
     measure.dEvents
     |> List.map setIndpEventWidthHeight
@@ -197,7 +204,7 @@ let private setIndpEventXCoords (measure:DrawableMeasure) =
             resultList
     //return
     xLoop [] initialX 0. kerning measure.dEvents
-    |> fun dList -> {measure with dEvents=dList}
+    |> fun dEvents -> {measure with dEvents = dEvents}
 
 /// Gets the Y-position of Middle C given a clef.
 let private getMidCYCoord initY clef =
@@ -207,8 +214,8 @@ let private getMidCYCoord initY clef =
     | Bass -> //count DOWN from MidC
         initY - pitchYSpacing * 3.
     | NoClef ->
-        Basic.errMsg "Attempted to assign a Y coord to a Pitch with a None clef!"
-        Basic.errMsg "Returning midpointY of measure as middle C coord"
+        errMsg "Attempted to assign a Y coord to a Pitch with a None clef!"
+        errMsg "Returning midpointY of measure as middle C coord"
         initY + pitchYSpacing * 6.
 
 /// Gets the Y coord of a pitch
@@ -230,9 +237,10 @@ let private getRestYCoords measureMidpointY (rest:Rest) =
         measureMidpointY
 
 /// Gets KeySig
+/// TODO implement
 let private getKeySig () = ()
 
-/// Gets clef's Y-coords.
+/// Gets clef Y-coords.
 let private getClefYCoords initY clef =
     match clef with
     | Treble ->
@@ -240,7 +248,7 @@ let private getClefYCoords initY clef =
     | Bass ->
         initY
     | _ ->
-        Basic.errMsg "Uncovered clef hit in assignYCoords.yLoop: %A" clef
+        errMsg "Uncovered clef hit in assignYCoords.yLoop: %A" clef
         initY
 
 /// Gets TimeSig's Y-coords
@@ -277,7 +285,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
         | RestEvent r ->
             getRestYCoords measureMidpointY r
         | KeyEvent _ ->
-            Basic.errMsg "Need to implement KeyEvent assignYCoords in DrawMusic!"
+            errMsg "Need to implement KeyEvent assignYCoords in DrawMusic!"
             initY
         | ClefEvent c -> 
             checkClefUpdate c
@@ -285,7 +293,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
         | TimeSigEvent _ ->
             getTimeSigYCoords initY
         | ErrorEvent e ->
-            Basic.errMsg "ErrorEvent %A can't be assigned a location." e
+            errMsg "ErrorEvent %A can't be assigned a location." e
             0.
 
     /// Only assign Y Coords to IndependentEvents
@@ -294,7 +302,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
         | IndependentEvent i ->
             let y = calcIndpEventY initY dEvent i
             //return
-            {dEvent with geom={dEvent.geom with y=y}}
+            {dEvent with geom = {dEvent.geom with y = y}}
         | _ ->
             //DependentEvents assigned later
             //return
@@ -305,8 +313,8 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
         List.fold (fun acc elem -> acc@[assignEvent initY elem]) [] eventList
 
     //return
-    assignFold initialY measure.dEvents
-    |> fun dList -> {measure with dEvents = dList@ledgerLines} //ledger lines can be appended to the end because they're already assigned geometries
+    (assignFold initialY measure.dEvents)
+    |> fun dEvents -> {measure with dEvents = dEvents@ledgerLines} //ledger lines can be appended to the end because they're already assigned geometries
 
 (*
     DependentEvent MusGeom funcs
@@ -319,14 +327,15 @@ let private findEventByID measure eID =
 let private findEventInStaff (staff:DrawableStaff) eID = 
     [for measure in staff.measures do yield findEventByID measure eID]
     |> List.head
-    
 
 /// Returns a MusGeom given an EventID
 let private getEventGeomByID measure eID = 
     findEventByID measure eID
     |> fun e -> e.geom
 
+/// 
 let private calcTieGeom measure tie =
+    /// TODO: Make this safe!
     let originGeom = getEventGeomByID measure tie.targets.[0].eID
     let targetGeom = getEventGeomByID measure tie.targets.[1].eID
     let x = originGeom.x + originGeom.w
@@ -395,9 +404,9 @@ let private setDependentEventGeom (measure:DrawableMeasure) (dEvent:DrawableEven
             | Tie ->
                 let geom = calcTieGeom measure d
                 {dEvent with geom = geom}
-            //| _ ->
-            //    Basic.errMsg "DependentEvent %A could not be assigned a MusGeom" d
-            //    dEvent
+            | _ ->
+                errMsg "DependentEvent %A could not be assigned a MusGeom" d
+                dEvent
         //return
         result
     | _ ->
@@ -438,51 +447,52 @@ let createDrawableMeasure initialClef (measure:Measure) x y w h =
         resultMeasure
 
 /// Ensures given Staff is not empty or is malformed, etc.
-let verifyStaff (staff:Staff) = 
-        let check = 
-            if staff.IsEmpty  then
-                Basic.errMsg "Empty staff given for createDrawableStaff"
-                false
-            else if staff.Head.IsEmpty then
-                Basic.errMsg "First measure is empty in staff given to createDrawableStaff"
-                false
-            else
-                true
-        //return
-        check
+let private verifyStaff (staff:Staff) = 
+    let check = 
+        if staff.IsEmpty  then
+            errMsg "Empty staff given for createDrawableStaff"
+            false
+        else if staff.Head.IsEmpty then
+            errMsg "First measure is empty in staff given to createDrawableStaff"
+            false
+        else
+            true
+    //return
+    check
 
 /// Helper func to create DrawableStaff
-let private createVerifiedStaff (staff:Staff) x y w h : DrawableMeasure list =
-        let mutable currentClef:Clef =
-            staff
-            |> List.head
-            |> tryFindFirstClef
-            |> function
-                | Some c ->
-                    c
-                | _ ->
-                    Basic.errMsg "No first clef found, assuming Treble"
-                    Treble
-        //return
-        [
-            for measure in staff do
-                let dMeasure = createDrawableMeasure currentClef measure x y (w / (staff.Length|>float)) h
-                match (tryFindPrevClef measure) with
-                | Some c -> 
-                    currentClef <- c
-                | None ->
-                    () //do nothing
-                yield dMeasure
-        ]
+let private createDrawableStaff (staff:Staff) x y w h : DrawableMeasure list =
+    let mutable currentClef:Clef =
+        staff
+        |> List.head
+        |> tryFindFirstClef
+        |> function
+            | Some c ->
+                c
+            | _ ->
+                errMsg "No first clef found, assuming Treble"
+                Treble
+    //return
+    [
+        for measure in staff do
+            let dMeasure = createDrawableMeasure currentClef measure x y (w / (staff.Length|>float)) h
+            match (tryFindPrevClef measure) with
+            | Some c -> 
+                currentClef <- c
+            | None ->
+                () //do nothing
+            yield dMeasure
+    ]
 
-/// Creates DrawableStaff for a given Staff and assigns geometries 
-let createDrawableStaff (staff:Staff) x y w h : DrawableStaff =
+/// Creates DrawableStaff for a given Staff, which is verified, and assigns geometries
+/// to its measures/events
+let createVerifiedDrawableStaff (staff:Staff) x y w h =
     let measures = 
         match verifyStaff staff with
         | true -> 
-            createVerifiedStaff staff x y w h
+            createDrawableStaff staff x y w h
         | _ -> 
-            Basic.errMsg "verifyStaff failed for given staff: %A" staff
+            errMsg "verifyStaff failed for given staff: %A" staff
             []
     //return
     {measures=measures;geom=createGeom x y w h UP}

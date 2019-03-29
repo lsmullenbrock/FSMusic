@@ -12,11 +12,11 @@ open System.Windows.Media.Imaging
 let inline loadImageFile file =
     //let path = Path.Combine(ImageLocations.imageLocDir, file)
     if File.Exists(file) then
-        Basic.log "Loading image located at %A" file
+        log "Loading image located at %A" file
         new BitmapImage(Uri(file, UriKind.Relative))
     else
-        Basic.errMsg "Image located at '%A' was not found and could not be loaded" file
-        Basic.errMsg "Returning empty BitmapImage"
+        errMsg "Image located at '%A' was not found and could not be loaded" file
+        errMsg "Returning empty BitmapImage"
         new BitmapImage()
 
 /// Helper function to create a Line object.

@@ -117,6 +117,7 @@ type Inker(canvas:Canvas) =
         this.inkWholeNotehead x y w h
 
     /// Inks a dot
+    /// TODO: Move math adjustment out to engraver? Move Ellipse() call out somewhere else?
     member this.inkDot x y w size =
         let dot = 
             new Ellipse(
@@ -137,7 +138,7 @@ type Inker(canvas:Canvas) =
     /// Inks a slur facing up.
     ///
     /// TODO: Finsh implementation. On back burner for now.
-    /// Move the math up to engraver...
+    /// Move the math up to engraver?
     member this.inkUpSlur x y w h =
         let angle = System.Math.Atan(h/w) * (180./System.Math.PI)
         let transform = RotateTransform(angle)

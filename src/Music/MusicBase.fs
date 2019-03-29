@@ -3,10 +3,13 @@ open EventID
 
 /// Octave to be paired with Pitch
 type Octave = int
+
 /// Indicates if pitch/rest is dotted.
 type Dotted = bool
+
 /// Indicates if pitch/rest is tied.
 type Tied = bool
+
 /// Notes are arranged on the 12-tone "clock" such that
 /// C natural is a the 0 (i.e., the '12') position and
 /// the notes go up in number clockwise around such that
@@ -21,11 +24,13 @@ type Note =
     | G = 7
     | A = 9
     | B = 11
+
 /// Indicates if a pitch is sharp/flat/etc.
 type Alteration = 
     | Flat      = -1
     | Natural   = 0
     | Sharp     = 1
+
 /// Value is NOT considered the same thing as a note's actual time duration.
 /// Value is an Enum, whereas duration is how much time/space the event actually takes.
 /// "Duration" here denotes Value (e.g., Quarter) with some modifier
@@ -38,21 +43,23 @@ type Value =
     | Quarter       = 4
     | Half          = 2
     | Whole         = 1
+
 /// Union for Key Quality.
 type Quality =
     | Major
     | Minor
+
 /// Basic timesig type.
 type TimeSig =
     { numerator: int
       denominator: Value }
+
 /// Clef union.
 /// The "NoClef" clef is currently used for preventing drawing errors.
 type Clef =
     | Treble
     | Bass
     | NoClef
-
 
 /// Basic Pitch type.
 type Pitch =
@@ -66,33 +73,40 @@ type Pitch =
 type Rest =
     { value: Value
       dotted: Dotted }
+
 /// Denotes the actual Key a segment of music is "in".
 type Key =
     { root: Note
       alteration: Alteration
       quality: Quality }
+
 /// Helper func to generate a Rest.
 let createRest value dotted =
     { value = value; dotted = dotted }
+
 /// Helper func to generate a Pitch.
 let createPitch note alteration octave value dotted =
     { note = note; alteration = alteration; octave = octave; value = value; dotted = dotted }
+
 /// Helper func to generate a TimeSig.
 let createTimeSig numerator denominator =
     { numerator = numerator; denominator = denominator }
 
+/// Wrapper for objects that appear in a measure
 type IndependentEvent = 
     | PitchEvent of Pitch
     | RestEvent of Rest
     | KeyEvent of Key
     | TimeSigEvent of TimeSig
     | ClefEvent of Clef
-    | ErrorEvent of Basic.MusError
+    | ErrorEvent of MusError
 
+/// Types that are attached to objects that appear in a measure
 type DependentEventType =
     | Tie
     | Slur
     | LedgerLine
+    | Accidental of Alteration
 
 /// Wrapper type so that Pitches, Rests, Clefs and so on can be packed into a Measure together.
 ///
@@ -130,7 +144,7 @@ let createIndpEvent (item:obj) eID : MeasureEvent =
         | :? Clef as c ->
             ClefEvent c
         | _ ->
-            Basic.errMsg "Cannot create MeasureEvent out of given item: %A" item
+            errMsg "Cannot create MeasureEvent out of given item: %A" item
             (ErrorEvent "Err in createEvent")
         ) |> IndependentEvent
     createMeasureEvent event eID
@@ -148,6 +162,26 @@ let createTie origin target eID =
 let createSlur targets eID =
     createDepEvent Slur targets eID
 
+let createAccidental target eID =
+    let accidental =
+        match target.mEvent with
+        | IndependentEvent i ->
+            match i with
+            | PitchEvent p ->
+                match p.alteration with
+                | Some a ->
+                    Accidental a
+                | _ ->
+                    errMsg "createAccidental called on %A" target.mEvent
+                    Accidental Alteration.Natural
+            | _ ->
+                errMsg "createAccidental called on %A" target.mEvent
+                Accidental Alteration.Natural
+        | _ ->
+            errMsg "createAccidental called on %A" target.mEvent
+            Accidental Alteration.Natural
+    //return
+    (createDepEvent accidental [target] eID)
 
 /// (Tries to) create(s) multiple events from a list of obj's.
 /// 
@@ -215,21 +249,19 @@ let tryFindFirstClef (measure:Measure) =
         | _ ->
             None
 
-/// Adds single event to given measure
+/// Adds single event to given measure and assign it a unique ID
 let addEvent (measure:Measure) (event:MeasureEvent) =
     let id =
         match List.tryLast measure with
         | None -> 
             defaultEventID
         | Some _ ->
-            // This is preferred over measure.Length as the
-            // length will change as it is processed in later funcs
             EventIDManager.Instance.generateID()
     event.eID <- id
     //return
     measure@[event]
 
-/// Adds more than one event to a measure
+/// Adds more than one event to a measure and assigns them all IDs
 let addMultipleEvents measure events = 
     List.fold addEvent measure events
 
@@ -244,7 +276,9 @@ let distFromC0 p = (ordinal p.note) + p.octave * 7 + 1
 /// Used to calculate value interval in staff lines and spaces between two pitches.
 /// Negative distance means p1 is below p2 on the staff.
 let inline staffInterval p1 p2 = (distFromC0 p1) - (distFromC0 p2)
-/// Used to calculate the actual interval between two pitches.
+/// Used to calculate the actual (non-qualified, i.e. not major nor minor etc) 
+/// interval between two pitches.
+///
 /// Negative result means p2 is below p1.
 let inline interval p1 p2 =
     let dist = staffInterval p1 p2
@@ -252,10 +286,9 @@ let inline interval p1 p2 =
         dist + 1
     else
         dist - 1
-
-
-
-//Default events/etc
+(*
+    Default events/etc
+*)
 let defaultRest = createRest Value.Quarter false
 let defaultPitch = createPitch Note.C None 4 Value.Quarter false
 let defaultClef = Clef.Treble

@@ -31,7 +31,7 @@ let test (engraver:Engraver) =
 let makeWindow width height =
     let window = 
         new Window(
-            Width = width, 
+            Width = width,
             Height = height,
             Title = "MusWindow Test",
             Icon = (DrawUtils.loadImageFile ImageLocations.flatImageLocation),
@@ -60,7 +60,7 @@ let makeWindow width height =
         newButton
 
     let clickEvent_testCanvas _ =
-        Basic.log "clickEvent_testCanvas clicked"
+        log "clickEvent_testCanvas clicked"
         test engraver
 
     let drawExerciseButton = createButton "Draw Exercise" (clickEvent_testCanvas) "Genderate and Draw new reading exercise."

@@ -56,7 +56,6 @@
     <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="src\Utils\Basic.fs" />
-    <Compile Include="src\Utils\TypeUtils.fs" />
     <Compile Include="src\images\ImageLocations.fs" />
     <None Include="src\images\bass_clef.png" />
     <None Include="src\images\eighth_rest.png" />
