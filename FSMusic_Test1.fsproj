@@ -55,6 +55,7 @@
     <None Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="src\images\ImageLocations.fs" />
     <Compile Include="src\Utils\Basic.fs" />
     <Compile Include="src\Music\EventID.fs" />
     <Compile Include="src\Music\MusResources.fs" />
@@ -67,21 +68,20 @@
     <Compile Include="test\Test.fs" />
     <Compile Include="test\Scratchpad.fs" />
     <Compile Include="Main\Main.fs" />
-    <Compile Include="src\images\ImageLocations.fs" />
-    <None Include="src\images\noteheads\whole_note.png" />
-    <None Include="src\images\noteheads\filled_notehead.png" />
-    <None Include="src\images\noteheads\open_notehead.png" />
-    <None Include="src\images\rests\whole_rest.png" />
-    <None Include="src\images\rests\eighth_rest.png" />
-    <None Include="src\images\rests\half_rest.png" />
-    <None Include="src\images\rests\quarter_rest.png" />
-    <None Include="src\images\clefs\bass_clef.png" />
-    <None Include="src\images\clefs\treble_clef.png" />
-    <None Include="src\images\accidentals\natural.png" />
-    <None Include="src\images\accidentals\sharp.png" />
-    <None Include="src\images\accidentals\flat.png" />
-    <None Include="src\images\lines\slur_down.png" />
-    <None Include="src\images\lines\slur_up.png" />
+    <None Include="src\images\bass_clef.png" />
+    <None Include="src\images\eighth_rest.png" />
+    <None Include="src\images\filled_notehead.png" />
+    <None Include="src\images\flat.png" />
+    <None Include="src\images\half_rest.png" />
+    <None Include="src\images\natural.png" />
+    <None Include="src\images\open_notehead.png" />
+    <None Include="src\images\quarter_rest.png" />
+    <None Include="src\images\sharp.png" />
+    <None Include="src\images\slur_down.png" />
+    <None Include="src\images\slur_up.png" />
+    <None Include="src\images\treble_clef.png" />
+    <None Include="src\images\whole_note.png" />
+    <None Include="src\images\whole_rest.png" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">
