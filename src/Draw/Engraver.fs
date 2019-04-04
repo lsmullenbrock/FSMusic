@@ -3,7 +3,7 @@
 open System.Windows.Controls
 
 open MusicBase
-open Drawable
+open DrawableTypes
 open Inker
 
 /// Essentially a wrapper for the Inker, the Engraver makes decisions and tells the Inker what to draw.
