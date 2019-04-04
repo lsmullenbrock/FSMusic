@@ -37,6 +37,7 @@ type DrawableStaff =
       geom: MusGeom }
 
 //default sizes
+let defaultGeomTuple = (0., 0., 0., 0.)
 let defaultGeom = {x=0.;y=0.;w=0.;h=0.;orientation=UP}
 let defaultDrawableMeasure = {dEvents=[];geom=defaultGeom}
 let defaultDrawableStaff = {measures=[];geom=defaultGeom}
@@ -63,6 +64,12 @@ let tieHeight = MusResources.tieHeightDefault
 let bassClefWidth, bassClefHeight = MusResources.bassClefWidthDefault, MusResources.bassClefHeightDefault
 let trebleClefWidth, trebleClefHeight = MusResources.trebleClefWidthDefault, MusResources.trebleClefHeightDefault
 let trebleClefYOffset = MusResources.trebleClefYOffset
+
+//alterations/accidentals
+let flatWidth, flatHeight = MusResources.flatWidthDefault, MusResources.flatHeightDefault
+let sharpWidth, sharpHeight = MusResources.sharpWidthDefault, MusResources.sharpHeightDefault
+let naturalWidth, naturalHeight = MusResources.naturalWidthDefault, MusResources.naturalHeightDefault
+
 //timesig
 let timeSigWidth, timeSigHeight = MusResources.timeSigWidthDefault, MusResources.timeSigHeightDefault
 //kerning
@@ -75,12 +82,13 @@ let createGeom x y w h orientation : MusGeom = {x=x;y=y;w=w;h=h;orientation=orie
 let createDrawableEvent event = {event=event; geom=defaultGeom}
 
 /// Creates single LedgerLineEvent at given location
-let createDrawableLedgerLine target x y w =
+let wrapLedgerLineIntoDrawable target x y w =
     let event = createLedgerLine target defaultEventID
     {event=event;geom=createGeom x y w 0. UP}
 
 /// Creates multiple ledger lines and sets their MusGeoms.
-let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
+let createDrawableLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
+    let halfLineSpacing = measureLineSpacing / 2.
     let mTop = measure.geom.y
     let mBottom = mTop + measure.geom.h
     let x = p.geom.x - p.geom.w / 4.
@@ -89,23 +97,24 @@ let createLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchTop =
     let result = 
         // Below staff
         if pitchTop > mBottom then
-            let diff = pitchTop - mBottom
+            let diff = pitchTop - halfLineSpacing - mBottom
             let numLines = diff / measureLineSpacing
             [0. .. numLines + 1.]
             |> List.map(fun lineNum -> mBottom + lineNum * measureLineSpacing)
-            |> List.map(fun y -> createDrawableLedgerLine p.event x y w)
+            |> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
         //Above staff
         else if pitchTop < mTop then
-            let diff = mTop - pitchTop
+            let diff = mTop + halfLineSpacing - pitchTop
             let numLines = diff / measureLineSpacing
             [1. .. numLines - 1.]
             |> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
-            |> List.map(fun y -> createDrawableLedgerLine p.event x y w)
+            |> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
         //No ledger lines needed
         else
             []
     //return
     result
+
 
 (*
     IndependentEvent MusGeom assignment funcs
@@ -185,7 +194,37 @@ let private setMultipleIndpEventSizes (measure:DrawableMeasure) =
     measure.dEvents
     |> List.map setIndpEventWidthHeight
     |> fun result -> {measure with dEvents = result}
-        
+
+let private getAlterationWidth alt =
+    match alt with
+    | Alteration.Flat ->
+        flatWidth
+    | Alteration.Natural ->
+        naturalWidth    
+    | Alteration.Sharp ->
+        sharpWidth
+    | _ ->
+        errMsg "Unknown alteration: %A in getAlterationWidth" alt
+        0.
+
+let private getAccidentalXBuffer (event:DrawableEvent) =
+    match event.event.mEvent with
+    | IndependentEvent i ->
+        match i with
+        | PitchEvent p ->
+            match p.alteration with
+            | Some a ->
+                getAlterationWidth a
+            | _ ->
+                0.
+        | KeyEvent k ->
+            errMsg "KeyEvent %A unhandled in getAccidentalXBuffer currently" k
+            0.
+        | _ ->
+            0.
+    | _ ->
+        0.
+
 /// Attempts to assign x-coords to a DrawableEvent list
 let private setIndpEventXCoords (measure:DrawableMeasure) =
     let initialX = measure.geom.x
@@ -194,10 +233,10 @@ let private setIndpEventXCoords (measure:DrawableMeasure) =
         | hd::tl ->
             let newX = 
                 // If the last event has no width, no adjustment/kerning needed
-                if prevWidth = 0. then
-                    prevXPos
-                else
-                    prevXPos + prevWidth + kerning
+                (if prevWidth = 0. then prevXPos
+                else prevXPos + prevWidth + kerning)
+                + getAccidentalXBuffer hd //add extra buffer if accidental present
+
             let result = {hd with geom = {hd.geom with x=newX}}
             xLoop (resultList@[result]) result.geom.x result.geom.w kerning tl 
         | _ ->
@@ -220,7 +259,7 @@ let private getMidCYCoord initY clef =
 
 /// Gets the Y coord of a pitch
 let private getPitchYCoords initY curClef pitch =
-    let staffDist = float<|staffInterval defaultPitch pitch
+    let staffDist = float (staffInterval defaultPitch pitch)
     let dist = staffDist * pitchYSpacing
     let midCY = getMidCYCoord initY curClef
     //return
@@ -261,7 +300,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
     //let measureWidth = measure.geom.x
     let measureMidpointY = (measure.geom.y + measure.geom.h) / 2.
     let mutable currentClef = prevClef
-    let mutable ledgerLines : DrawableEvent list = []
+    let mutable newDependents : DrawableEvent list = []
 
     /// Checks if clef should be updated
     /// @Refactor ?
@@ -280,7 +319,14 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
             else 
                 dEvent.geom.orientation <- DOWN
             //assign ledger lines
-            ledgerLines <- ledgerLines@(createLedgerLines measure dEvent pY)
+            newDependents <- newDependents@(createDrawableLedgerLines measure dEvent pY)
+            match p.alteration with
+            | Some _ ->
+                let event = 
+                    extractAccidental dEvent.event defaultEventID
+                    |> createDrawableEvent
+                newDependents <- newDependents@[event]
+            | _ -> () //nothing to do
             pY
         | RestEvent r ->
             getRestYCoords measureMidpointY r
@@ -314,7 +360,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
 
     //return
     (assignFold initialY measure.dEvents)
-    |> fun dEvents -> {measure with dEvents = dEvents@ledgerLines} //ledger lines can be appended to the end because they're already assigned geometries
+    |> fun dEvents -> {measure with dEvents = dEvents@newDependents} //ledger lines can be appended to the end because they're already assigned geometries
 
 (*
     DependentEvent MusGeom funcs
@@ -329,7 +375,7 @@ let private findEventInStaff (staff:DrawableStaff) eID =
     |> List.head
 
 /// Returns a MusGeom given an EventID
-let private getEventGeomByID measure eID = 
+let private getEventGeomByID measure eID =
     findEventByID measure eID
     |> fun e -> e.geom
 
@@ -388,6 +434,38 @@ let private calcSlurGeom measure slur =
     let orientation = UP
     //return
     (createGeom x y w h orientation)
+
+let private calcAlterationGeom measure acc =
+    let targetGeom = getEventGeomByID measure acc.targets.[0].eID
+    let x, y, w, h =
+        match acc.dType with
+        | Accidental a ->
+            match a with
+            | Alteration.Flat ->
+                let x = targetGeom.x - kerning
+                let y = targetGeom.y - targetGeom.h / 2.
+                let w = flatWidth
+                let h = flatHeight
+                x, y, w, h
+            | Alteration.Natural ->
+                let x = targetGeom.x - kerning / 1.25
+                let y = targetGeom.y - targetGeom.h / 4.
+                let w = naturalWidth
+                let h = naturalHeight
+                x, y, w, h
+            | Alteration.Sharp ->
+                let x = targetGeom.x - kerning
+                let y = targetGeom.y - targetGeom.h / 4.
+                let w = sharpWidth
+                let h = sharpHeight
+                x, y, w, h
+            | _ ->
+                errMsg "Illegal Alteration: %A hit in calcAlterationGeom -> acc.dType -> match a with ..." a
+                defaultGeomTuple
+        | _ -> 
+            errMsg "Unmatched case in calcAlterationGeom -> match acc.dType with hit by: %A" acc.dType
+            defaultGeomTuple
+    (createGeom x y w h UP)
     
 /// All DependentEvent coords can be set at once because we already know all of it.
 let private setDependentEventGeom (measure:DrawableMeasure) (dEvent:DrawableEvent) =
@@ -404,9 +482,12 @@ let private setDependentEventGeom (measure:DrawableMeasure) (dEvent:DrawableEven
             | Tie ->
                 let geom = calcTieGeom measure d
                 {dEvent with geom = geom}
-            | _ ->
-                errMsg "DependentEvent %A could not be assigned a MusGeom" d
-                dEvent
+            | Accidental _ ->
+                let geom = calcAlterationGeom measure d
+                {dEvent with geom = geom}
+            //| _ ->
+            //    errMsg "DependentEvent %A could not be assigned a MusGeom" d
+            //    dEvent
         //return
         result
     | _ ->
@@ -470,7 +551,7 @@ let private createDrawableStaff (staff:Staff) x y w h : DrawableMeasure list =
             | Some c ->
                 c
             | _ ->
-                errMsg "No first clef found, assuming Treble"
+                errMsg "No first clef found in staff %A, assuming Treble" staff
                 Treble
     //return
     [

@@ -19,9 +19,9 @@ let test (engraver:Engraver) =
 
     let e0 = createIndpEvent Treble defaultEventID
     let e1 = defaultTimeSigEvent
-    let e2 = createIndpEvent defaultPitch defaultEventID
-    let e3 = createIndpEvent {defaultPitch with note = Note.D} defaultEventID
-    let e4 = createIndpEvent {defaultPitch with note = Note.A; octave = 3} defaultEventID
+    let e2 = createIndpEvent {defaultPitch with alteration = Some Alteration.Sharp} defaultEventID
+    let e3 = createIndpEvent {defaultPitch with note = Note.B; octave= 3; alteration = Some Alteration.Flat} defaultEventID
+    let e4 = createIndpEvent {defaultPitch with note = Note.A; octave = 3; alteration = Some Alteration.Natural} defaultEventID
     
     let m1 = addMultipleEvents defaultMeasure [e0;e1;e2;e3;e4]
     let dMeasure1 = createDrawableMeasure Treble m1 100. 100. MusResources.measureWidthDefault MusResources.measureHeightDefault
@@ -87,6 +87,22 @@ let makeWindow width height =
 
     let (mainControls:Panel list) = [mainButtonPanel; canvas]
     addControlsToPanel mainPanel mainControls
+
+    let textBlock = TextBlock(Text="TEST")
+    textBlock.FontSize <- 50.
+    textBlock.HorizontalAlignment <- HorizontalAlignment.Stretch
+    textBlock.VerticalAlignment <- VerticalAlignment.Center
+
+    //Canvas.SetLeft(textBlock, 100.)
+    //Canvas.SetTop(textBlock, 100.)
+    //canvas.Children.Add(textBlock) |> ignore
+
+    
+    let grid = Grid()
+    grid.Children.Add(textBlock) |> ignore
+    canvas.Children.Add(grid) |> ignore
+    
+
 
     window.Content <- mainPanel
 

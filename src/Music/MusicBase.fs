@@ -162,18 +162,27 @@ let createTie origin target eID =
 let createSlur targets eID =
     createDepEvent Slur targets eID
 
-let createAccidental target eID =
+let createAccidental target alt eID =
+    createDepEvent (Accidental alt) [target] eID
+
+let extractAccidentalFromPitch (p:Pitch) =
+    match p.alteration with
+    | Some a ->
+        Accidental a
+    | _ ->
+        errMsg "In extractAccidentalFromPitch: Attempted to generate Accidental from None from %A" p
+        Accidental (Alteration.Natural)
+
+let extractAccidental target eID =
     let accidental =
         match target.mEvent with
         | IndependentEvent i ->
             match i with
             | PitchEvent p ->
-                match p.alteration with
-                | Some a ->
-                    Accidental a
-                | _ ->
-                    errMsg "createAccidental called on %A" target.mEvent
-                    Accidental Alteration.Natural
+                extractAccidentalFromPitch p
+            | KeyEvent k ->
+                errMsg "KeyEvent %A unhandled in createAccidental currently" k
+                Accidental Alteration.Natural
             | _ ->
                 errMsg "createAccidental called on %A" target.mEvent
                 Accidental Alteration.Natural
@@ -182,6 +191,7 @@ let createAccidental target eID =
             Accidental Alteration.Natural
     //return
     (createDepEvent accidental [target] eID)
+
 
 /// (Tries to) create(s) multiple events from a list of obj's.
 /// 

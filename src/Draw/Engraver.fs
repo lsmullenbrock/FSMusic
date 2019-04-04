@@ -8,6 +8,8 @@ open Inker
 
 /// Essentially a wrapper for the Inker, the Engraver makes decisions and tells the Inker what to draw.
 type Engraver(canvas:Canvas) =
+    static let unpackGeom geom = geom.x, geom.y, geom.w, geom.h
+
     /// Engraver tells Inker what to do
     member private __.inker = new Inker(canvas)
 
@@ -110,6 +112,19 @@ type Engraver(canvas:Canvas) =
         | DOWN ->
             this.inker.inkDownSlur x y w h
 
+    /// Engrave an accidental.
+    member private this.engraveAlteration alt geometry =
+        let x, y, w, h = unpackGeom geometry
+        match alt with
+        | Alteration.Flat ->
+            this.inker.inkFlat x y w h
+        | Alteration.Natural ->
+            this.inker.inkNatural x y w h
+        | Alteration.Sharp ->
+            this.inker.inkSharp x y w h
+        | _ ->
+            errMsg "Unhandled Alteration: %A in Engraver.engraveAlteration" alt
+
     /// Engrave IndependentEvent at given MusGeom
     member private this.engraveIndpEvent (indpEvent:IndependentEvent) (g:MusGeom) =
         match indpEvent with
@@ -134,8 +149,8 @@ type Engraver(canvas:Canvas) =
             this.engraveTie g
         | Slur ->
             this.engraveSlur g
-        | Accidental _ ->
-            errMsg "Implement Engraver.engraveAccidental!"
+        | Accidental a ->
+            this.engraveAlteration a g
 
     /// (Attempts to) draw correct event.
     member private this.engraveEvent (dEvent:DrawableEvent) =
@@ -154,6 +169,5 @@ type Engraver(canvas:Canvas) =
     /// Draws a DrawableMeasure and its contents to a given Canvas.
     member this.engraveMeasureAndEvents (dMeasure:DrawableMeasure) =
         this.engraveMeasure dMeasure
-        List.map this.engraveEvent dMeasure.dEvents
-        |> ignore
+        List.iter this.engraveEvent dMeasure.dEvents
 

@@ -6,7 +6,6 @@ let mainWindowWidth = 1024.
 let mainWindowHeight = 720.
 
 [<Literal>]
-// 
 let SIZE_MULTIPLIER = 1.
 
 //padding
@@ -52,6 +51,14 @@ let halfNoteheadHeightDefault = 25. * SIZE_MULTIPLIER
 
 let filledNoteheadWidthDefault = measureHeightDefault * 0.30
 let filledNoteheadHeightDefault = 25. * SIZE_MULTIPLIER
+
+//accidentals
+let flatWidthDefault = filledNoteheadWidthDefault * 0.5
+let flatHeightDefault = filledNoteheadHeightDefault * 1.5
+let naturalWidthDefault = filledNoteheadWidthDefault * 0.4
+let naturalHeightDefault = filledNoteheadHeightDefault * 1.5
+let sharpWidthDefault = filledNoteheadWidthDefault * 0.5
+let sharpHeightDefault = filledNoteheadHeightDefault * 1.5
 
 //ledger line
 let ledgerLineWidth = filledNoteheadWidthDefault * 1.50

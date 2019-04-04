@@ -26,7 +26,11 @@ type Inker(canvas:Canvas) =
     /// Add a TextBlock to canvas at given location.
     /// @TODO does not work properly, troubleshoot offsetting
     member this.writeTextToCanvas text x y w h =
-        let textBlock = new TextBlock(Text=text, FontSize=h)
+        let textBlock = new TextBlock(Text=text)
+        textBlock.Height <- h
+        textBlock.FontSize <- h
+        textBlock.MaxHeight <- h
+        textBlock.BaselineOffset <- 0.
         //textBlock.Height <- h
         //textBlock.Width <- w
         this.addElemAtLocation textBlock x y
@@ -156,8 +160,16 @@ type Inker(canvas:Canvas) =
     ///
     /// TODO: Finsh implementation. On back burner for now.
     member this.inkDownSlur x y w h =
-        
         this.drawImageFromLocation ImageLocations.slurUpImageLocation x y w h
+
+    member this.inkFlat x y w h =
+        this.drawImageFromLocation ImageLocations.flatImageLocation x y w h
+
+    member this.inkNatural x y w h =
+        this.drawImageFromLocation ImageLocations.naturalImageLocation x y w h
+
+    member this.inkSharp x y w h = 
+        this.drawImageFromLocation ImageLocations.sharpImageLocation x y w h
 
     /// Draw a single ledger line.
     member this.inkLedgerLine x y w =
