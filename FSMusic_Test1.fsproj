@@ -55,8 +55,8 @@
     <None Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="src\images\ImageLocations.fs" />
     <Compile Include="src\Utils\Basic.fs" />
+    <Compile Include="src\Images\ImageLocations.fs" />
     <Compile Include="src\Music\EventID.fs" />
     <Compile Include="src\Music\MusResources.fs" />
     <Compile Include="src\Music\MusicBase.fs" />
@@ -67,21 +67,7 @@
     <Compile Include="src\MusWindow\MusWindow.fs" />
     <Compile Include="test\Test.fs" />
     <Compile Include="test\Scratchpad.fs" />
-    <Compile Include="Main\Main.fs" />
-    <None Include="src\images\bass_clef.png" />
-    <None Include="src\images\eighth_rest.png" />
-    <None Include="src\images\filled_notehead.png" />
-    <None Include="src\images\flat.png" />
-    <None Include="src\images\half_rest.png" />
-    <None Include="src\images\natural.png" />
-    <None Include="src\images\open_notehead.png" />
-    <None Include="src\images\quarter_rest.png" />
-    <None Include="src\images\sharp.png" />
-    <None Include="src\images\slur_down.png" />
-    <None Include="src\images\slur_up.png" />
-    <None Include="src\images\treble_clef.png" />
-    <None Include="src\images\whole_note.png" />
-    <None Include="src\images\whole_rest.png" />
+    <Compile Include="main\Main.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core">

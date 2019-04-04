@@ -6,38 +6,48 @@ let currentLoc = __SOURCE_DIRECTORY__ + "/"
 
 //Clefs
 [<Literal>]
-let bassClefLocation = currentLoc + "bass_clef.png"
+let clefDir = currentLoc + "Clefs/"
 [<Literal>]
-let trebleClefLocation = currentLoc + "treble_clef.png"
+let bassClefLocation = clefDir + "bass_clef.png"
+[<Literal>]
+let trebleClefLocation = clefDir + "treble_clef.png"
 
 //Noteheads
 [<Literal>]
-let wholeNoteheadLocation = currentLoc + "whole_note.png"
+let noteHeadDir = currentLoc + "Noteheads/"
 [<Literal>]
-let halfNoteheadLocation = currentLoc + "open_notehead.png"
+let wholeNoteheadLocation = noteHeadDir + "whole_note.png"
 [<Literal>]
-let filledNoteheadLocation = currentLoc + "filled_notehead.png"
+let halfNoteheadLocation = noteHeadDir + "open_notehead.png"
+[<Literal>]
+let filledNoteheadLocation = noteHeadDir + "filled_notehead.png"
 
 //Accidentals
 [<Literal>]
-let sharpImageLocation = currentLoc + "sharp.png"
+let accidentalDir = currentLoc + "Accidentals/"
 [<Literal>]
-let flatImageLocation = currentLoc + "flat.png"
+let sharpImageLocation = accidentalDir + "sharp.png"
 [<Literal>]
-let naturalImageLocation = currentLoc + "natural.png"
+let flatImageLocation = accidentalDir + "flat.png"
+[<Literal>]
+let naturalImageLocation = accidentalDir + "natural.png"
 
 //Rests
 [<Literal>]
-let eighthRestImageLocation = currentLoc + "eighth_rest.png"
+let restDir = currentLoc + "Rests/"
 [<Literal>]
-let quarterRestImageLocation = currentLoc + "quarter_rest.png"
+let eighthRestImageLocation = restDir + "eighth_rest.png"
 [<Literal>]
-let halfRestImageLocation = currentLoc + "half_rest.png"
+let quarterRestImageLocation = restDir + "quarter_rest.png"
 [<Literal>]
-let wholeRestImageLocation = currentLoc + "whole_rest.png"
+let halfRestImageLocation = restDir + "half_rest.png"
+[<Literal>]
+let wholeRestImageLocation = restDir + "whole_rest.png"
 
 //Lines/Ties/Slurs
 [<Literal>]
-let slurUpImageLocation = currentLoc + "slur_up.png"
+let lineDir = currentLoc + "Lines/"
 [<Literal>]
-let slurDownImageLocation = currentLoc + "slur_down.png"
+let slurUpImageLocation = lineDir + "slur_up.png"
+[<Literal>]
+let slurDownImageLocation = lineDir + "slur_down.png"

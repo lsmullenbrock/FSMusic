@@ -1,4 +1,5 @@
-﻿open System
+﻿module Main
+open System
 open MusWindow
 open System.Windows
 
