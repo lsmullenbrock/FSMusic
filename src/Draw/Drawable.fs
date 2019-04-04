@@ -115,7 +115,6 @@ let createDrawableLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchT
     //return
     result
 
-
 (*
     IndependentEvent MusGeom assignment funcs
 *)

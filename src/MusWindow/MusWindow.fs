@@ -88,19 +88,19 @@ let makeWindow width height =
     let (mainControls:Panel list) = [mainButtonPanel; canvas]
     addControlsToPanel mainPanel mainControls
 
-    let textBlock = TextBlock(Text="TEST")
-    textBlock.FontSize <- 50.
-    textBlock.HorizontalAlignment <- HorizontalAlignment.Stretch
-    textBlock.VerticalAlignment <- VerticalAlignment.Center
+    //let textBlock = TextBlock(Text="TEST")
+    //textBlock.FontSize <- 50.
+    //textBlock.HorizontalAlignment <- HorizontalAlignment.Stretch
+    //textBlock.VerticalAlignment <- VerticalAlignment.Center
 
     //Canvas.SetLeft(textBlock, 100.)
     //Canvas.SetTop(textBlock, 100.)
     //canvas.Children.Add(textBlock) |> ignore
 
     
-    let grid = Grid()
-    grid.Children.Add(textBlock) |> ignore
-    canvas.Children.Add(grid) |> ignore
+    //let grid = Grid()
+    //grid.Children.Add(textBlock) |> ignore
+    //canvas.Children.Add(grid) |> ignore
     
 
 
