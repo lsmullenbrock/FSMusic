@@ -60,6 +60,7 @@
     <Compile Include="src\Utils\Basic.fs" />
     <Compile Include="src\Resources\MusResources.fs" />
     <Compile Include="src\Resources\ImageLocations.fs" />
+    <Compile Include="src\Resources\FontLocations.fs" />
     <None Include="src\Resources\Rests\half_rest.png" />
     <None Include="src\Resources\Rests\whole_rest.png" />
     <None Include="src\Resources\Rests\quarter_rest.png" />
@@ -74,6 +75,17 @@
     <None Include="src\Resources\Clefs\bass_clef.png" />
     <None Include="src\Resources\Lines\slur_down.png" />
     <None Include="src\Resources\Lines\slur_up.png" />
+    <None Include="src\Resources\Fonts\Default\nine_default.png" />
+    <None Include="src\Resources\Fonts\Default\eight_default.png" />
+    <None Include="src\Resources\Fonts\Default\six_default.png" />
+    <None Include="src\Resources\Fonts\Default\seven_default.png" />
+    <None Include="src\Resources\Fonts\Default\five_default.png" />
+    <None Include="src\Resources\Fonts\Default\four_default.png" />
+    <None Include="src\Resources\Fonts\Default\three_default.png" />
+    <None Include="src\Resources\Fonts\Default\two_default.png" />
+    <None Include="src\Resources\Fonts\Default\one_default_right_justified.png" />
+    <None Include="src\Resources\Fonts\Default\one_default_centered.png" />
+    <None Include="src\Resources\Fonts\Default\zero_default.png" />
     <Compile Include="src\Music\EventID.fs" />
     <Compile Include="src\Music\MusicBase.fs" />
     <Compile Include="src\Draw\DrawUtils.fs" />
@@ -82,6 +94,7 @@
     <Compile Include="src\Draw\DrawDependentEvent.fs" />
     <Compile Include="src\Draw\DrawMeasure.fs" />
     <Compile Include="src\Draw\DrawStaff.fs" />
+    <Compile Include="src\Draw\Fonter.fs" />
     <Compile Include="src\Draw\Inker.fs" />
     <Compile Include="src\Draw\Engraver.fs" />
     <Compile Include="src\MusWindow\MusWindow.fs" />

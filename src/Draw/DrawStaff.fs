@@ -18,7 +18,8 @@ let private verifyStaff (staff:Staff) =
     //return
     check
 
-/// Helper func to create DrawableStaff
+/// Helper func to create DrawableStaff. 
+/// If no clef found, defaults to Treble
 let private createDrawableStaff (staff:Staff) x y w h : DrawableMeasure list =
     let mutable currentClef:Clef =
         staff

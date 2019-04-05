@@ -89,15 +89,20 @@ type Inker(canvas:Canvas) =
         this.inkBarline (x + w) y h
 
     /// Draws a Bass Clef.
-    member this.inkBassClef x y w h = this.drawImageFromLocation ImageLocations.bassClefLocation x y w h
+    member this.inkBassClef x y w h = 
+        this.drawImageFromLocation ImageLocations.bassClefLocation x y w h
     /// Draws a Treble Clef.
-    member this.inkTrebleClef x y w h = this.drawImageFromLocation ImageLocations.trebleClefLocation x y w h 
+    member this.inkTrebleClef x y w h = 
+        this.drawImageFromLocation ImageLocations.trebleClefLocation x y w h 
     /// Draws a Whole Note(head).
-    member this.inkWholeNotehead x y w h = this.drawImageFromLocation ImageLocations.wholeNoteheadLocation x y w h
+    member this.inkWholeNotehead x y w h = 
+        this.drawImageFromLocation ImageLocations.wholeNoteheadLocation x y w h
     /// Draws a Half Notehead (i.e., empty notehead) without a stem.
-    member this.inkHalfNotehead x y w h = this.drawImageFromLocation ImageLocations.halfNoteheadLocation x y w h
+    member this.inkHalfNotehead x y w h = 
+        this.drawImageFromLocation ImageLocations.halfNoteheadLocation x y w h
     /// Draws a filled Notehead (for Quarter/Eighth/etc notes) without a stem.
-    member this.inkFilledNotehead x y w h = this.drawImageFromLocation ImageLocations.filledNoteheadLocation x y w h
+    member this.inkFilledNotehead x y w h = 
+        this.drawImageFromLocation ImageLocations.filledNoteheadLocation x y w h
 
     /// Draws a note stem.
     member this.inkStem x y length =
@@ -123,7 +128,7 @@ type Inker(canvas:Canvas) =
     /// Inks a dot
     /// TODO: Move math adjustment out to engraver? Move Ellipse() call out somewhere else?
     member this.inkDot x y w size =
-        let dot = 
+        let dot =
             new Ellipse(
                 Width = size,
                 Height = size,
@@ -189,10 +194,12 @@ type Inker(canvas:Canvas) =
         this.drawImageFromLocation ImageLocations.halfRestImageLocation x y w h 
 
     /// Draw a Whole Rest
-    member this.inkWholeRest  x y w h = 
+    member this.inkWholeRest x y w h = 
         this.drawImageFromLocation ImageLocations.wholeRestImageLocation x y w h 
 
     /// Draw TimeSig event
+    // @FIX
     member this.inkTimeSig n d x y w h =
         this.writeTextToCanvas n x y w h
         //this.writeTextToCanvas d x (y+h) w h
+

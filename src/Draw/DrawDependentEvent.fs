@@ -5,7 +5,7 @@ open DrawableTypes
 open EventID
 
 (*
-DependentEvent MusGeom funcs
+    DependentEvent MusGeom funcs
 *)
 /// Returns a DrawableEvent from a measure given an EventID 
 let private findEventByID measure eID = 

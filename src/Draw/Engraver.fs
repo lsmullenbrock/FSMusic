@@ -71,6 +71,8 @@ type Engraver(canvas:Canvas) =
         let w = geom.w
         let h = geom.h
         let y = geom.y
+
+
         this.inker.inkTimeSig (timeSig.numerator|>string) (timeSig.denominator|>int|>string) x y w h
 
     ///@TODO: Implement

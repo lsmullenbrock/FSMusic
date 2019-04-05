@@ -1,6 +1,7 @@
 ﻿module DrawableTypes
 
 open MusicBase
+open EventID
 
 /// Used for both stem direction as well as slur direction
 type Orientation = UP | DOWN
@@ -35,7 +36,7 @@ let defaultDrawableMeasure = {dEvents=[];geom=defaultGeom}
 let defaultDrawableStaff = {measures=[];geom=defaultGeom}
 
 (*
-These assignments are kept for easy refactoring later/decoupling now
+    These assignments are kept for easy refactoring later/decoupling now
 *)
 //pitches
 let wholeNoteWidth, wholeNoteHeight = MusResources.wholeNoteheadWidthDefault, MusResources.wholeNoteheadHeightDefault
