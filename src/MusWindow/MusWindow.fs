@@ -4,9 +4,10 @@ open System.Windows
 open System.Windows.Controls
 
 open MusicBase
+open DrawMeasure
 open Engraver
-open Drawable
 open EventID
+
 
 /// Helper func to make adding elements easier.
 let addControlsToPanel (panel:#Panel) controlList = 
