@@ -3,10 +3,9 @@
 open System.Windows
 open System.Windows.Controls
 
-open MusicBase
+open MusicTypes
 open DrawMeasure
 open Engraver
-open EventID
 
 
 /// Helper func to make adding elements easier.
@@ -18,15 +17,22 @@ let addControlsToPanel (panel:#Panel) controlList =
 let test (engraver:Engraver) =
     engraver.clearCanvas()
 
-    let e0 = createIndpEvent Treble defaultEventID
-    let e1 = defaultTimeSigEvent
-    let e2 = createIndpEvent {defaultPitch with alteration = Some Alteration.Sharp} defaultEventID
-    let e3 = createIndpEvent {defaultPitch with note = Note.B; octave= 3; alteration = Some Alteration.Flat} defaultEventID
-    let e4 = createIndpEvent {defaultPitch with note = Note.A; octave = 3; alteration = Some Alteration.Natural} defaultEventID
+    let e0 = createIndpEvent Treble
+    let e1 = defaultTimeSigEvent |> createIndpEvent
+    let e2 = createIndpEvent {defaultPitch with alteration = Some Alteration.Sharp}
+    let e3 = createIndpEvent {defaultPitch with note = Note.B; octave= 3; alteration = Some Alteration.Flat}
+    let e4 = createIndpEvent {defaultPitch with note = Note.A; octave = 3; alteration = Some Alteration.Natural}
+
+    let e5 = createIndpEvent Bass
+    let e6 = createIndpEvent {defaultPitch with note = Note.E; octave = 3; alteration = Some Alteration.Flat}
     
     let m1 = addMultipleEvents defaultMeasure [e0;e1;e2;e3;e4]
-    let dMeasure1 = createDrawableMeasure Treble m1 100. 100. MusResources.measureWidthDefault MusResources.measureHeightDefault
-    engraver.engraveMeasureAndEvents dMeasure1
+    let m2 = addMultipleEvents defaultMeasure [e5;e6]
+
+    let staff1 = DrawStaff.createVerifiedDrawableStaff [m1;m2] 100. 100. 400. 100. 
+
+    //let dMeasure1 = createDrawableMeasure Treble m1 100. 100. MusResources.measureWidthDefault MusResources.measureHeightDefault
+    engraver.engraveStaff staff1
 //-------------------------------------------------------------------------------
 
 let makeWindow width height =
@@ -35,7 +41,7 @@ let makeWindow width height =
             Width = width,
             Height = height,
             Title = "MusWindow Test",
-            Icon = (DrawUtils.loadImageFile ImageLocations.flatImageLocation),
+            Icon = (EngraverUtils.loadImageFile ImageLocations.flatImageLocation),
             WindowStartupLocation = WindowStartupLocation.CenterScreen
         )
     

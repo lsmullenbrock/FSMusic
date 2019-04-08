@@ -1,7 +1,7 @@
 ﻿module DrawStaff
 
 open DrawableTypes
-open MusicBase
+open MusicTypes
 open DrawMeasure
 
 /// Ensures given Staff is not empty or is malformed, etc.
@@ -21,7 +21,8 @@ let private verifyStaff (staff:Staff) =
 /// Helper func to create DrawableStaff. 
 /// If no clef found, defaults to Treble
 let private createDrawableStaff (staff:Staff) x y w h : DrawableMeasure list =
-    let mutable currentClef:Clef =
+    let mutable curX = x    
+    let mutable currentClef : Clef =
         staff
         |> List.head
         |> tryFindFirstClef
@@ -34,7 +35,8 @@ let private createDrawableStaff (staff:Staff) x y w h : DrawableMeasure list =
     //return
     [
         for measure in staff do
-            let dMeasure = createDrawableMeasure currentClef measure x y (w / (staff.Length|>float)) h
+            let dMeasure = createDrawableMeasure currentClef measure curX y (w / (staff.Length|>float)) h
+            curX <- dMeasure.geom.x + dMeasure.geom.w
             match (tryFindPrevClef measure) with
             | Some c -> 
                 currentClef <- c

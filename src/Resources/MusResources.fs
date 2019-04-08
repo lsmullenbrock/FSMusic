@@ -9,7 +9,7 @@ let mainWindowHeight = 720.
 let SIZE_MULTIPLIER = 1.
 
 //padding
-let leftPadding, rightPadding = mainWindowHeight/15., mainWindowHeight/15.
+let leftPadding, rightPadding = mainWindowHeight/10., mainWindowHeight/10.
 
 //measure
 [<Literal>]
@@ -21,16 +21,12 @@ let measureHeightDefault = 100. * SIZE_MULTIPLIER
 let measureLineSpacing = measureHeightDefault / (NUM_STAFF_LINES - 1.)
 let pitchYSpacing = measureLineSpacing / 2.
 
-//TimeSig
-let timeSigWidthDefault = 25. * SIZE_MULTIPLIER
-let timeSigHeightDefault = measureHeightDefault / 2.
-
 //clefs
-let bassClefWidthDefault = measureHeightDefault * 0.75 * SIZE_MULTIPLIER
-let bassClefHeightDefault = measureHeightDefault * SIZE_MULTIPLIER
+let bassClefWidthDefault = measureHeightDefault * 0.75
+let bassClefHeightDefault = measureHeightDefault
 
 let trebleClefWidthDefault = measureHeightDefault * 0.65
-let trebleClefHeightDefault = measureHeightDefault * 1.75
+let trebleClefHeightDefault = measureHeightDefault * 1.7
 
 let trebleClefYOffset = measureHeightDefault / 3.5
 
@@ -79,7 +75,9 @@ let wholeRestHeightDefault = halfRestHeightDefault
 //ties
 let tieHeightDefault = filledNoteheadHeightDefault / 1.5
 
+//TimeSig
+let timeSigWidthDefault = filledNoteheadWidthDefault * 1.25
+let timeSigHeightDefault = measureHeightDefault / 2.
+
 //spacing
-let kerning = measureWidthDefault * 0.03
-
-
+let kerning = filledNoteheadWidthDefault * 0.75

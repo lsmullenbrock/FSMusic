@@ -1,6 +1,6 @@
 ﻿module DrawDependentEvent
 
-open MusicBase
+open MusicTypes
 open DrawableTypes
 open EventID
 

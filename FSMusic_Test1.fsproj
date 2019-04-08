@@ -87,13 +87,13 @@
     <None Include="src\Resources\Fonts\Default\one_default_centered.png" />
     <None Include="src\Resources\Fonts\Default\zero_default.png" />
     <Compile Include="src\Music\EventID.fs" />
-    <Compile Include="src\Music\MusicBase.fs" />
-    <Compile Include="src\Drawable\DrawUtils.fs" />
+    <Compile Include="src\Music\MusicTypes.fs" />
     <Compile Include="src\Drawable\DrawableTypes.fs" />
     <Compile Include="src\Drawable\DrawIndependentEvent.fs" />
     <Compile Include="src\Drawable\DrawDependentEvent.fs" />
     <Compile Include="src\Drawable\DrawMeasure.fs" />
     <Compile Include="src\Drawable\DrawStaff.fs" />
+    <Compile Include="src\Engraver\EngraverUtils.fs" />
     <Compile Include="src\Engraver\Fonter.fs" />
     <Compile Include="src\Engraver\Inker.fs" />
     <Compile Include="src\Engraver\Engraver.fs" />

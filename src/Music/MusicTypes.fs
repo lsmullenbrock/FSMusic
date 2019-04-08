@@ -1,4 +1,4 @@
-﻿module MusicBase
+﻿module MusicTypes
 open EventID
 
 /// Octave to be paired with Pitch
@@ -130,7 +130,7 @@ let createMeasureEvent mEvent eID =
 
 /// Helper func to convert given item to a IndependentEvent.
 /// Returns an ErrorEvent if type is not wrapable into MeasureEvent.
-let createIndpEvent (item:obj) eID : MeasureEvent =
+let createIndpEvent (item:obj) : MeasureEvent =
     let event = 
         (match item with
         | :? Pitch as p ->
@@ -147,7 +147,7 @@ let createIndpEvent (item:obj) eID : MeasureEvent =
             errMsg "Cannot create MeasureEvent out of given item: %A" item
             (ErrorEvent "Err in createEvent")
         ) |> IndependentEvent
-    createMeasureEvent event eID
+    createMeasureEvent event defaultEventID
 
 let private createDepEvent dType targets eID =
     let event = {dType=dType;targets=targets} |> DependentEvent
@@ -305,11 +305,11 @@ let defaultClef = Clef.Treble
 let defaultKey = { root = Note.C; alteration = Alteration.Natural; quality = Quality.Major }
 let defaultTimeSig = createTimeSig 4 Value.Quarter
 
-let defaultRestEvent = createIndpEvent defaultRest defaultEventID
-let defaultPitchEvent = createIndpEvent defaultPitch defaultEventID
-let defaultClefEvent = createIndpEvent defaultClef defaultEventID
-let defaultKeyEvent = createIndpEvent defaultKey defaultEventID
-let defaultTimeSigEvent = createIndpEvent defaultTimeSig defaultEventID
+let defaultRestEvent = createIndpEvent defaultRest
+let defaultPitchEvent = createIndpEvent defaultPitch
+let defaultClefEvent = createIndpEvent defaultClef
+let defaultKeyEvent = createIndpEvent defaultKey
+let defaultTimeSigEvent = createIndpEvent defaultTimeSig
 
 let defaultMeasure:Measure = []
 

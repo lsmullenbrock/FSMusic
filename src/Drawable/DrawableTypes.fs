@@ -1,6 +1,6 @@
 ﻿module DrawableTypes
 
-open MusicBase
+open MusicTypes
 open EventID
 
 /// Used for both stem direction as well as slur direction
@@ -87,21 +87,29 @@ let createDrawableLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchT
     let x = p.geom.x - p.geom.w / 4.
     let w = ledgerLineWidth
 
+    let calcLines delta max init =
+        let numLines = delta / measureLineSpacing
+        [1. .. numLines + max]
+        |> List.map(fun lineNum -> init + (max * lineNum * measureLineSpacing))
+        |> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
+
     let result = 
         // Below staff
         if pitchTop > mBottom then
             let diff = pitchTop - halfLineSpacing - mBottom
-            let numLines = diff / measureLineSpacing
-            [0. .. numLines + 1.]
-            |> List.map(fun lineNum -> mBottom + lineNum * measureLineSpacing)
-            |> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
+            calcLines diff 1. mBottom
+            //let numLines = diff / measureLineSpacing
+            //[1. .. numLines + 1.]
+            //|> List.map(fun lineNum -> mBottom + lineNum * measureLineSpacing)
+            //|> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
         //Above staff
         else if pitchTop < mTop then
             let diff = mTop + halfLineSpacing - pitchTop
-            let numLines = diff / measureLineSpacing
-            [1. .. numLines - 1.]
-            |> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
-            |> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
+            calcLines diff (-1.) mTop
+            //let numLines = diff / measureLineSpacing
+            //[1. .. numLines - 1.]
+            //|> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
+            //|> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
         //No ledger lines needed
         else
             []

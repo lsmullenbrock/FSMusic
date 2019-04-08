@@ -9,9 +9,8 @@ let log = printfn
 /// Generic err reporting func
 let errMsg = printfn
 
-/// Properly implement error handing later?
+/// Properly implement error handing later
 type MusError = string
-
 
 /// Translation of Java's enum.ordinal() for .NET
 /// Taken from https://stackoverflow.com/a/54594879/7578019

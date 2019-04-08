@@ -41,12 +41,12 @@ type Inker(canvas:Canvas) =
 
     /// Given a file location, attempt to draw it to a canvas.
     member private this.drawImageFromLocation file x y w h =
-        let image = DrawUtils.createImage file w h
+        let image = EngraverUtils.createImage file w h
         this.addImage image x y
 
     /// Creates a line that spans a specific width and height.
     member private __.createLineWidthHeight x y w h =
-        DrawUtils.createLine x y (x + w) (y + h)
+        EngraverUtils.createLine x y (x + w) (y + h)
 
     /// Adds a single Line object to given Canvas.
     member inline private this.inkLine (line:Line) = 
@@ -151,7 +151,7 @@ type Inker(canvas:Canvas) =
     member this.inkUpSlur x y w h =
         let angle = System.Math.Atan(h/w) * (180./System.Math.PI)
         let transform = RotateTransform(angle)
-        let image = DrawUtils.createImage ImageLocations.slurUpImageLocation 100. 100.
+        let image = EngraverUtils.createImage ImageLocations.slurUpImageLocation 100. 100.
         let newWidth = sqrt(h ** 2. + w ** 2.) + MusResources.filledNoteheadWidthDefault
         let newY = y
         let newX = x //- MusResources.filledNoteheadWidthDefault / 2.5
@@ -200,6 +200,12 @@ type Inker(canvas:Canvas) =
     /// Draw TimeSig event
     // @FIX
     member this.inkTimeSig n d x y w h =
-        this.writeTextToCanvas n x y w h
+        let numerImage = Fonter.getDigitImage n w h
+        let denomImage = Fonter.getDigitImage d w h
+
+        this.addImage numerImage x y
+        this.addImage denomImage x (y+h) 
+        
+        //this.writeTextToCanvas n x y w h
         //this.writeTextToCanvas d x (y+h) w h
 

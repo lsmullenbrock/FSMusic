@@ -1,7 +1,7 @@
 ﻿module DrawMeasure
 
 open DrawableTypes
-open MusicBase
+open MusicTypes
 open DrawIndependentEvent
 open DrawDependentEvent
 
@@ -28,12 +28,12 @@ let createDrawableMeasure initialClef (measure:Measure) x y w h =
     let resultMeasure = {dEvents=dEvents; geom=createGeom x y w h UP} |> (assignGeometries initialClef)
     //test to see if the measure is wide enough or not
     let finalX = 
-        List.last resultMeasure.dEvents
-        |> fun e -> e.geom.x + e.geom.w
-    if resultMeasure.geom.x + resultMeasure.geom.w <= finalX then
-        let newWidth = finalX - resultMeasure.geom.x + kerning
+        List.maxBy (fun (e : DrawableEvent) -> e.geom.x + e.geom.w) resultMeasure.dEvents
+        |> fun e -> e.geom.x + e.geom.w + MusResources.kerning
+    if resultMeasure.geom.x + resultMeasure.geom.w < finalX then
+        let newWidth = finalX - resultMeasure.geom.x
         //return
-        {resultMeasure with geom={resultMeasure.geom with w = newWidth}}
+        {resultMeasure with geom = {resultMeasure.geom with w = newWidth}}
     else
         //return
         resultMeasure

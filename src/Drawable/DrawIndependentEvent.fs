@@ -1,9 +1,8 @@
 ﻿module DrawIndependentEvent
 
 open EventID
-open MusicBase
+open MusicTypes
 open DrawableTypes
-
 
 (*
     IndependentEvent MusGeom assignment funcs
@@ -46,7 +45,7 @@ let assignClefWidthHeight =
 
 /// Implement
 let assignKeyWidthHeight (k:Key) =
-    log "%A unhandled by createDrawableMeasureEvent currently" k
+    errMsg "%A unhandled by createDrawableMeasureEvent currently" k
     0., 0.
 
 /// Default for ErrorEvents is 0.0/0.0 w/h

@@ -2,11 +2,11 @@
 
 open System.Windows.Controls
 
-open MusicBase
+open MusicTypes
 open DrawableTypes
 open Inker
 
-/// Essentially a wrapper for the Inker, the Engraver makes decisions and tells the Inker what to draw.
+/// Engraver makes decisions and tells the Inker what to draw.
 type Engraver(canvas:Canvas) =
     static let unpackGeom geom = geom.x, geom.y, geom.w, geom.h
 
@@ -73,7 +73,7 @@ type Engraver(canvas:Canvas) =
         let y = geom.y
 
 
-        this.inker.inkTimeSig (timeSig.numerator|>string) (timeSig.denominator|>int|>string) x y w h
+        this.inker.inkTimeSig (timeSig.numerator) (timeSig.denominator|>int) x y w h
 
     ///@TODO: Implement
     member private this.engraveKeyEvent geometry keyEvent = 
@@ -172,4 +172,9 @@ type Engraver(canvas:Canvas) =
     member this.engraveMeasureAndEvents (dMeasure:DrawableMeasure) =
         this.engraveMeasure dMeasure
         List.iter this.engraveEvent dMeasure.dEvents
+
+    /// Draws a DrawableStaff and its contents.
+    member this.engraveStaff (dStaff:DrawableStaff) =
+        dStaff.measures
+        |> List.iter this.engraveMeasureAndEvents
 
