@@ -69,13 +69,18 @@ let timeSigWidth, timeSigHeight = MusResources.timeSigWidthDefault, MusResources
 let kerning = MusResources.kerning
 
 /// Helper func to create Geometry from x, y, w, h
-let createGeom x y w h orientation : MusGeom = {x=x;y=y;w=w;h=h;orientation=orientation}
+let inline createGeom x y w h orientation : MusGeom = {x=x;y=y;w=w;h=h;orientation=orientation}
+
+let inline flipOrientation (geom:MusGeom) = 
+    match geom.orientation with
+    | UP -> {geom with orientation = DOWN}
+    | DOWN -> {geom with orientation = UP}
 
 /// Wraps event into a DrawableEvent with a defaultGeom of {0;0;0;0}
-let createDrawableEvent event = {event=event; geom=defaultGeom}
+let inline createDrawableEvent event = {event=event; geom=defaultGeom}
 
 /// Creates single LedgerLineEvent at given location
-let wrapLedgerLineIntoDrawable target x y w =
+let inline wrapLedgerLineIntoDrawable target x y w =
     let event = createLedgerLine target defaultEventID
     {event=event;geom=createGeom x y w 0. UP}
 

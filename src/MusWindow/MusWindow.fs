@@ -4,7 +4,6 @@ open System.Windows
 open System.Windows.Controls
 
 open MusicTypes
-open DrawMeasure
 open Engraver
 
 
@@ -18,18 +17,19 @@ let test (engraver:Engraver) =
     engraver.clearCanvas()
 
     let e0 = createIndpEvent Treble
-    let e1 = defaultTimeSigEvent |> createIndpEvent
+    let e1 = defaultTimeSigEvent
     let e2 = createIndpEvent {defaultPitch with alteration = Some Alteration.Sharp}
     let e3 = createIndpEvent {defaultPitch with note = Note.B; octave= 3; alteration = Some Alteration.Flat}
     let e4 = createIndpEvent {defaultPitch with note = Note.A; octave = 3; alteration = Some Alteration.Natural}
 
     let e5 = createIndpEvent Bass
-    let e6 = createIndpEvent {defaultPitch with note = Note.E; octave = 3; alteration = Some Alteration.Flat}
+    let e6 = {numerator = 3; denominator = Value.Quarter} |> createIndpEvent
+    let e7 = createIndpEvent {defaultPitch with note = Note.E; octave = 3; alteration = Some Alteration.Flat}
     
     let m1 = addMultipleEvents defaultMeasure [e0;e1;e2;e3;e4]
-    let m2 = addMultipleEvents defaultMeasure [e5;e6]
+    let m2 = addMultipleEvents defaultMeasure [e5;e6;e7]
 
-    let staff1 = DrawStaff.createVerifiedDrawableStaff [m1;m2] 100. 100. 400. 100. 
+    let staff1 = DrawStaff.createVerifiedDrawableStaff [m1;m2;m1;m2] MusResources.leftPadding MusResources.topPadding MusResources.measureWidthDefault MusResources.measureHeightDefault
 
     //let dMeasure1 = createDrawableMeasure Treble m1 100. 100. MusResources.measureWidthDefault MusResources.measureHeightDefault
     engraver.engraveStaff staff1
@@ -41,7 +41,7 @@ let makeWindow width height =
             Width = width,
             Height = height,
             Title = "MusWindow Test",
-            Icon = (EngraverUtils.loadImageFile ImageLocations.flatImageLocation),
+            Icon = (DrawingUtils.loadImageFile GlyphLocations.flatImageLocation),
             WindowStartupLocation = WindowStartupLocation.CenterScreen
         )
     
@@ -70,7 +70,7 @@ let makeWindow width height =
         log "clickEvent_testCanvas clicked"
         test engraver
 
-    let drawExerciseButton = createButton "Draw Exercise" (clickEvent_testCanvas) "Genderate and Draw new reading exercise."
+    let drawExerciseButton = createButton "Draw Exercise" (clickEvent_testCanvas) "Generate and Draw new exercise."
     drawExerciseButton.IsDefault <- true
 
     let clickEvent_clear _ = 
@@ -87,8 +87,15 @@ let makeWindow width height =
         window.Close()
     let closeButton = createButton "Close" (clickEvent_close) "Close this window."
 
+    let clickEvent_GC _ =
+        for _ in [1..10] do
+            System.GC.WaitForPendingFinalizers()
+            System.GC.Collect()
+        log "GC.Collect() x 10"
+    let garbageCollectButton = createButton "GC" (clickEvent_GC) "Force garbage collection."
+
     let mainButtonPanel = new StackPanel(Orientation = Orientation.Horizontal)
-    addControlsToPanel mainButtonPanel [drawExerciseButton; clearButton;helpButton; closeButton]
+    addControlsToPanel mainButtonPanel [drawExerciseButton; clearButton;helpButton; garbageCollectButton; closeButton]
 
     let mainPanel = new StackPanel(Orientation = Orientation.Vertical)
 

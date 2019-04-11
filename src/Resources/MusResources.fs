@@ -6,15 +6,16 @@ let mainWindowWidth = 1024.
 let mainWindowHeight = 720.
 
 [<Literal>]
-let SIZE_MULTIPLIER = 1.
+let SIZE_MULTIPLIER = 0.5
 
 //padding
-let leftPadding, rightPadding = mainWindowHeight/10., mainWindowHeight/10.
+let leftPadding, rightPadding = mainWindowHeight/20., mainWindowHeight/20.
+let topPadding, bottomPadding = leftPadding, leftPadding
 
 //measure
 [<Literal>]
 let NUM_STAFF_LINES = 5.
-let measureWidthDefault = (mainWindowWidth - leftPadding - rightPadding) * SIZE_MULTIPLIER
+let measureWidthDefault = (mainWindowWidth - leftPadding - rightPadding) / 4. * SIZE_MULTIPLIER
 let measureHeightDefault = 100. * SIZE_MULTIPLIER
 
 //measure spacings

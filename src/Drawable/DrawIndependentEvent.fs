@@ -186,7 +186,7 @@ let private getTimeSigYCoords initY =
 let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
     let initialY = measure.geom.y
     //let measureWidth = measure.geom.x
-    let measureMidpointY = (measure.geom.y + measure.geom.h) / 2.
+    let measureMidpointY = (measure.geom.y + (measure.geom.h) / 2.)
     let mutable currentClef = prevClef
     let mutable newDependents : DrawableEvent list = []
 
@@ -204,7 +204,8 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
             //check if pitch is above or below midpoint
             if pY >= measureMidpointY then
                 dEvent.geom.orientation <- UP
-            else 
+            else
+                printfn "measureMidpointY"
                 dEvent.geom.orientation <- DOWN
             //assign ledger lines
             newDependents <- newDependents@(createDrawableLedgerLines measure dEvent pY)
@@ -214,7 +215,9 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
                     extractAccidental dEvent.event defaultEventID
                     |> createDrawableEvent
                 newDependents <- newDependents@[event]
-            | _ -> () //nothing to do
+            | _ -> 
+                () //nothing to do
+            //return
             pY
         | RestEvent r ->
             getRestYCoords measureMidpointY r

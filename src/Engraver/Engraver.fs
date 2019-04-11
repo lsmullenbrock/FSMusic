@@ -21,7 +21,7 @@ type Engraver(canvas:Canvas) =
     member this.clearCanvas () = this.inker.clearCanvas()
 
     /// Draws given pitch. Does not handle beaming.
-    member private this.engravePitchEvent (geometry:MusGeom) (pitch:Pitch) = 
+    member private this.engravePitchEvent geometry (pitch:Pitch) = 
         let {x=x;y=y;w=w;h=h} = geometry
         match pitch.value with
         | Value.Whole ->
@@ -34,7 +34,7 @@ type Engraver(canvas:Canvas) =
             match geometry.orientation with
             | UP -> 
                 this.inker.inkStem (x + w - widthOffset) (stemY - this.stemLength) this.stemLength
-            | DOWN -> 
+            | DOWN ->
                 this.inker.inkStem (x + widthOffset) stemY this.stemLength
             this.inker.inkFilledNoteheadPitch x y w h 
         match pitch.dotted with
@@ -65,14 +65,12 @@ type Engraver(canvas:Canvas) =
             ()
 
     /// Engraves TimeSig at given location
-    member private this.engraveTimeSigEvent geom timeSig = 
+    member private this.engraveTimeSigEvent geometry timeSig = 
         //let {x=x;y=y;w=w;h=h} = geom
-        let x = geom.x
-        let w = geom.w
-        let h = geom.h
-        let y = geom.y
-
-
+        let x = geometry.x
+        let w = geometry.w
+        let h = geometry.h
+        let y = geometry.y
         this.inker.inkTimeSig (timeSig.numerator) (timeSig.denominator|>int) x y w h
 
     ///@TODO: Implement

@@ -1,8 +1,8 @@
 ﻿[<RequireQualifiedAccess>]
-module ImageLocations
+module GlyphLocations
 
 [<Literal>]
-let currentLoc = __SOURCE_DIRECTORY__ + "/"
+let currentLoc = __SOURCE_DIRECTORY__ + "/Glyphs/"
 
 //Clefs
 [<Literal>]

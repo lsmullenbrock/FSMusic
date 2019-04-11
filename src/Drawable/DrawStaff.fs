@@ -21,7 +21,8 @@ let private verifyStaff (staff:Staff) =
 /// Helper func to create DrawableStaff. 
 /// If no clef found, defaults to Treble
 let private createDrawableStaff (staff:Staff) x y w h : DrawableMeasure list =
-    let mutable curX = x    
+    let mutable curX = x
+    let mutable curY = y
     let mutable currentClef : Clef =
         staff
         |> List.head
@@ -29,16 +30,26 @@ let private createDrawableStaff (staff:Staff) x y w h : DrawableMeasure list =
         |> function
             | Some c ->
                 c
-            | _ ->
+            | None ->
                 errMsg "No first clef found in staff %A, assuming Treble" staff
                 Treble
-    //return
+    //return list comprehension
     [
         for measure in staff do
-            let dMeasure = createDrawableMeasure currentClef measure curX y (w / (staff.Length|>float)) h
+            let mutable dMeasure = createDrawableMeasure currentClef measure curX curY w h
             curX <- dMeasure.geom.x + dMeasure.geom.w
+            
+            //start new line if x+w > margin space
+            //i.e., a "carriage return" or "newline" for music
+            if (curX + dMeasure.geom.w) > (MusResources.mainWindowWidth) then
+                curY <- curY + MusResources.measureHeightDefault * 2.
+                dMeasure <- createDrawableMeasure currentClef measure x curY w h // "return" to original x position
+                curX <- dMeasure.geom.x + dMeasure.geom.w
+            else
+                ()
+
             match (tryFindPrevClef measure) with
-            | Some c -> 
+            | Some c ->
                 currentClef <- c
             | None ->
                 () //do nothing

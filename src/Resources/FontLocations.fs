@@ -3,7 +3,7 @@
 [<Literal>]
 let fontFolder = "/Fonts/"
 
-let fontsLocation = System.Environment.CurrentDirectory.ToString() + fontFolder
+let fontsLocation = __SOURCE_DIRECTORY__ + fontFolder
 
 /// Default fonts/numerals
 module Default =

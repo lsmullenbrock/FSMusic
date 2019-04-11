@@ -14,7 +14,7 @@ type Inker(canvas:Canvas) =
 
     /// Adds a UIElement to given Canvas.
     member inline private __.addElementToCanvas (elem:#UIElement) =
-        canvas.Children.Add(elem) 
+        canvas.Children.Add(elem)
         |> ignore
 
     /// Adds a UIElement at a given location    
@@ -41,12 +41,12 @@ type Inker(canvas:Canvas) =
 
     /// Given a file location, attempt to draw it to a canvas.
     member private this.drawImageFromLocation file x y w h =
-        let image = EngraverUtils.createImage file w h
+        let image = DrawingUtils.createImage file w h
         this.addImage image x y
 
     /// Creates a line that spans a specific width and height.
     member private __.createLineWidthHeight x y w h =
-        EngraverUtils.createLine x y (x + w) (y + h)
+        DrawingUtils.createLine x y (x + w) (y + h)
 
     /// Adds a single Line object to given Canvas.
     member inline private this.inkLine (line:Line) = 
@@ -89,20 +89,20 @@ type Inker(canvas:Canvas) =
         this.inkBarline (x + w) y h
 
     /// Draws a Bass Clef.
-    member this.inkBassClef x y w h = 
-        this.drawImageFromLocation ImageLocations.bassClefLocation x y w h
+    member this.inkBassClef x y w h =
+        this.addImage (Glyphs.Clefs.Bass())  x y
     /// Draws a Treble Clef.
-    member this.inkTrebleClef x y w h = 
-        this.drawImageFromLocation ImageLocations.trebleClefLocation x y w h 
+    member this.inkTrebleClef x y w h =
+        this.addImage (Glyphs.Clefs.Treble()) x y
     /// Draws a Whole Note(head).
     member this.inkWholeNotehead x y w h = 
-        this.drawImageFromLocation ImageLocations.wholeNoteheadLocation x y w h
+        this.addImage (Glyphs.Noteheads.Whole()) x y
     /// Draws a Half Notehead (i.e., empty notehead) without a stem.
     member this.inkHalfNotehead x y w h = 
-        this.drawImageFromLocation ImageLocations.halfNoteheadLocation x y w h
+        this.addImage (Glyphs.Noteheads.Half()) x y
     /// Draws a filled Notehead (for Quarter/Eighth/etc notes) without a stem.
     member this.inkFilledNotehead x y w h = 
-        this.drawImageFromLocation ImageLocations.filledNoteheadLocation x y w h
+        this.addImage (Glyphs.Noteheads.Filled()) x y
 
     /// Draws a note stem.
     member this.inkStem x y length =
@@ -138,11 +138,11 @@ type Inker(canvas:Canvas) =
 
     /// Inks a tie facing down.
     member this.inkDownTie x y w h =
-        this.drawImageFromLocation ImageLocations.slurDownImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.slurDownImageLocation x y w h
 
     /// Inks a tie facing up.
     member this.inkUpTie x y w h =
-        this.drawImageFromLocation ImageLocations.slurUpImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.slurUpImageLocation x y w h
 
     /// Inks a slur facing up.
     ///
@@ -151,7 +151,7 @@ type Inker(canvas:Canvas) =
     member this.inkUpSlur x y w h =
         let angle = System.Math.Atan(h/w) * (180./System.Math.PI)
         let transform = RotateTransform(angle)
-        let image = EngraverUtils.createImage ImageLocations.slurUpImageLocation 100. 100.
+        let image = DrawingUtils.createImage GlyphLocations.slurUpImageLocation 100. 100.
         let newWidth = sqrt(h ** 2. + w ** 2.) + MusResources.filledNoteheadWidthDefault
         let newY = y
         let newX = x //- MusResources.filledNoteheadWidthDefault / 2.5
@@ -165,16 +165,16 @@ type Inker(canvas:Canvas) =
     ///
     /// TODO: Finsh implementation. On back burner for now.
     member this.inkDownSlur x y w h =
-        this.drawImageFromLocation ImageLocations.slurUpImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.slurUpImageLocation x y w h
 
     member this.inkFlat x y w h =
-        this.drawImageFromLocation ImageLocations.flatImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.flatImageLocation x y w h
 
     member this.inkNatural x y w h =
-        this.drawImageFromLocation ImageLocations.naturalImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.naturalImageLocation x y w h
 
     member this.inkSharp x y w h = 
-        this.drawImageFromLocation ImageLocations.sharpImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.sharpImageLocation x y w h
 
     /// Draw a single ledger line.
     member this.inkLedgerLine x y w =
@@ -183,28 +183,28 @@ type Inker(canvas:Canvas) =
     
     /// Draw an eighth rest
     member this.inkEighthRest x y w h =
-        this.drawImageFromLocation ImageLocations.eighthRestImageLocation x y w h
+        this.addImage (Glyphs.Rests.Eighth()) x y
 
     /// Draw a Quarter Rest
     member this.inkQuarterRest x y w h =
-        this.drawImageFromLocation ImageLocations.quarterRestImageLocation x y w h 
+        this.addImage (Glyphs.Rests.Quarter()) x y
 
     /// Draw a Half Rest
     member this.inkHalfRest x y w h = 
-        this.drawImageFromLocation ImageLocations.halfRestImageLocation x y w h 
+        this.addImage (Glyphs.Rests.Half()) x y
 
     /// Draw a Whole Rest
     member this.inkWholeRest x y w h = 
-        this.drawImageFromLocation ImageLocations.wholeRestImageLocation x y w h 
+        this.addImage (Glyphs.Rests.Whole()) x y
 
     /// Draw TimeSig event
     // @FIX
     member this.inkTimeSig n d x y w h =
-        let numerImage = Fonter.getDigitImage n w h
-        let denomImage = Fonter.getDigitImage d w h
+        let numerImage = Fonter.getDigitImage n
+        let denomImage = Fonter.getDigitImage d
 
-        this.addImage numerImage x y
-        this.addImage denomImage x (y+h) 
+        this.addImage (numerImage()) x y
+        this.addImage (denomImage()) x (y+h) 
         
         //this.writeTextToCanvas n x y w h
         //this.writeTextToCanvas d x (y+h) w h

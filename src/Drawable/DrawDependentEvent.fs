@@ -2,7 +2,6 @@
 
 open MusicTypes
 open DrawableTypes
-open EventID
 
 (*
     DependentEvent MusGeom funcs
@@ -20,8 +19,6 @@ let private findEventInStaff (staff:DrawableStaff) eID =
 let private getEventGeomByID measure eID =
     findEventByID measure eID
     |> fun e -> e.geom
-
-
 
 /// 
 let private calcTieGeom measure tie =
