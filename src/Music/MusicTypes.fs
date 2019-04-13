@@ -7,9 +7,6 @@ type Octave = int
 /// Indicates if pitch/rest is dotted.
 type Dotted = bool
 
-/// Indicates if pitch/rest is tied.
-type Tied = bool
-
 /// Notes are arranged on the 12-tone "clock" such that
 /// C natural is a the 0 (i.e., the '12') position and
 /// the notes go up in number clockwise around such that
@@ -81,19 +78,19 @@ type Key =
       quality: Quality }
 
 /// Helper func to generate a Rest.
-let createRest value dotted =
+let inline createRest value dotted =
     { value = value; dotted = dotted }
 
 /// Helper func to generate a Pitch.
-let createPitch note alteration octave value dotted =
+let inline createPitch note alteration octave value dotted =
     { note = note; alteration = alteration; octave = octave; value = value; dotted = dotted }
 
 /// Helper func to generate a TimeSig.
-let createTimeSig numerator denominator =
+let inline createTimeSig numerator denominator =
     { numerator = numerator; denominator = denominator }
 
 /// Wrapper for objects that appear in a measure
-type IndependentEvent = 
+type IndependentEvent =
     | PitchEvent of Pitch
     | RestEvent of Rest
     | KeyEvent of Key
@@ -125,8 +122,8 @@ and DependentEvent =
       targets: MeasureEvent list }
 
 /// Helper func
-let createMeasureEvent mEvent eID =
-    {mEvent=mEvent;eID=eID}
+let inline createMeasureEvent mEvent eID =
+    { mEvent = mEvent; eID = eID }
 
 /// Helper func to convert given item to a IndependentEvent.
 /// Returns an ErrorEvent if type is not wrapable into MeasureEvent.
@@ -144,25 +141,26 @@ let createIndpEvent (item:obj) : MeasureEvent =
         | :? Clef as c ->
             ClefEvent c
         | _ ->
-            errMsg "Cannot create MeasureEvent out of given item: %A" item
-            (ErrorEvent "Err in createEvent")
+            let msg = sprintf "Cannot create MeasureEvent out of given item: %A" item
+            errMsg "%A" msg
+            (ErrorEvent msg)
         ) |> IndependentEvent
     createMeasureEvent event defaultEventID
 
-let private createDepEvent dType targets eID =
+let inline private createDepEvent dType targets eID =
     let event = {dType=dType;targets=targets} |> DependentEvent
     createMeasureEvent event eID
 
-let createLedgerLine target eID =
+let inline createLedgerLine target eID =
     createDepEvent LedgerLine [target] eID
 
-let createTie origin target eID =
+let inline createTie origin target eID =
     createDepEvent Tie [origin; target] eID
 
-let createSlur targets eID =
+let inline createSlur targets eID =
     createDepEvent Slur targets eID
 
-let createAccidental target alt eID =
+let inline createAccidental target alt eID =
     createDepEvent (Accidental alt) [target] eID
 
 let extractAccidentalFromPitch (p:Pitch) =
@@ -192,15 +190,9 @@ let extractAccidental target eID =
     //return
     (createDepEvent accidental [target] eID)
 
-
-/// (Tries to) create(s) multiple events from a list of obj's.
-/// 
-/// All events are given and ID of 0 until they are added to a Measure.
-let createMultipleEvents (items:obj list) = () 
-
 /// Helper func to unbox event into basic type.
 /// Must be careful to properly cast recieving let binding/etc.
-let unboxEvent (event:MeasureEvent) = 
+let inline unboxEvent (event:MeasureEvent) = 
     unbox event
 
 /// Helper for ClefEvents

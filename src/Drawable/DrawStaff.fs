@@ -33,7 +33,7 @@ let private createDrawableStaff (staff:Staff) x y w h : DrawableMeasure list =
             | None ->
                 errMsg "No first clef found in staff %A, assuming Treble" staff
                 Treble
-    //return list comprehension
+    //return as list comprehension
     [
         for measure in staff do
             let mutable dMeasure = createDrawableMeasure currentClef measure curX curY w h

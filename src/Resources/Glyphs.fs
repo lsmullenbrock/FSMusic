@@ -22,26 +22,26 @@ let private sharpWidth, sharpHeight = MusResources.sharpWidthDefault, MusResourc
 let private naturalWidth, naturalHeight = MusResources.naturalWidthDefault, MusResources.naturalHeightDefault
 
 module Clefs =
-    let Treble () = createImg GlyphLocations.trebleClefLocation trebleClefWidth trebleClefHeight
-    let Bass () = createImg GlyphLocations.bassClefLocation bassClefWidth bassClefHeight
+    let Treble () = createImg GlyphLocations.Clefs.trebleClefLocation trebleClefWidth trebleClefHeight
+    let Bass () = createImg GlyphLocations.Clefs.bassClefLocation bassClefWidth bassClefHeight
 
 module Noteheads =
-    let Whole () = createImg GlyphLocations.wholeNoteheadLocation wholeNoteWidth wholeNoteHeight
-    let Half () = createImg GlyphLocations.halfNoteheadLocation halfNoteWidth halfNoteHeight
-    let Filled () = createImg GlyphLocations.filledNoteheadLocation filledNoteWidth filledNoteHeight
+    let Whole () = createImg GlyphLocations.Noteheads.wholeNoteheadLocation wholeNoteWidth wholeNoteHeight
+    let Half () = createImg GlyphLocations.Noteheads.halfNoteheadLocation halfNoteWidth halfNoteHeight
+    let Filled () = createImg GlyphLocations.Noteheads.filledNoteheadLocation filledNoteWidth filledNoteHeight
 
 module Accidentals =
-    let Sharp () = createImg GlyphLocations.sharpImageLocation sharpWidth sharpHeight
-    let Natural () = createImg GlyphLocations.naturalImageLocation naturalWidth naturalHeight
-    let Flat () = createImg GlyphLocations.flatImageLocation flatWidth flatHeight
+    let Sharp () = createImg GlyphLocations.Accidentals.sharpImageLocation sharpWidth sharpHeight
+    let Natural () = createImg GlyphLocations.Accidentals.naturalImageLocation naturalWidth naturalHeight
+    let Flat () = createImg GlyphLocations.Accidentals.flatImageLocation flatWidth flatHeight
 
 module Rests =
-    let Whole () = createImg GlyphLocations.wholeRestImageLocation wholeRestWidth wholeRestHeight
-    let Half () = createImg GlyphLocations.halfRestImageLocation halfRestWidth halfRestHeight
-    let Quarter () = createImg GlyphLocations.quarterRestImageLocation quarterRestWidth quarterRestHeight
-    let Eighth () = createImg GlyphLocations.eighthRestImageLocation eighthRestWidth eighthRestHeight
+    let Whole () = createImg GlyphLocations.Rests.wholeRestImageLocation wholeRestWidth wholeRestHeight
+    let Half () = createImg GlyphLocations.Rests.halfRestImageLocation halfRestWidth halfRestHeight
+    let Quarter () = createImg GlyphLocations.Rests.quarterRestImageLocation quarterRestWidth quarterRestHeight
+    let Eighth () = createImg GlyphLocations.Rests.eighthRestImageLocation eighthRestWidth eighthRestHeight
 
 /// Refactor --
 module Lines =
-    let Slur_Up () = createImg GlyphLocations.slurUpImageLocation
-    let Slur_Down () = createImg GlyphLocations.slurDownImageLocation
+    let Slur_Up () = createImg GlyphLocations.Lines.slurUpImageLocation
+    let Slur_Down () = createImg GlyphLocations.Lines.slurDownImageLocation

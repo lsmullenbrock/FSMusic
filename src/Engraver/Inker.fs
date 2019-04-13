@@ -138,11 +138,11 @@ type Inker(canvas:Canvas) =
 
     /// Inks a tie facing down.
     member this.inkDownTie x y w h =
-        this.drawImageFromLocation GlyphLocations.slurDownImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.Lines.slurDownImageLocation x y w h
 
     /// Inks a tie facing up.
     member this.inkUpTie x y w h =
-        this.drawImageFromLocation GlyphLocations.slurUpImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.Lines.slurUpImageLocation x y w h
 
     /// Inks a slur facing up.
     ///
@@ -151,7 +151,7 @@ type Inker(canvas:Canvas) =
     member this.inkUpSlur x y w h =
         let angle = System.Math.Atan(h/w) * (180./System.Math.PI)
         let transform = RotateTransform(angle)
-        let image = DrawingUtils.createImage GlyphLocations.slurUpImageLocation 100. 100.
+        let image = DrawingUtils.createImage GlyphLocations.Lines.slurUpImageLocation 100. 100.
         let newWidth = sqrt(h ** 2. + w ** 2.) + MusResources.filledNoteheadWidthDefault
         let newY = y
         let newX = x //- MusResources.filledNoteheadWidthDefault / 2.5
@@ -165,16 +165,16 @@ type Inker(canvas:Canvas) =
     ///
     /// TODO: Finsh implementation. On back burner for now.
     member this.inkDownSlur x y w h =
-        this.drawImageFromLocation GlyphLocations.slurUpImageLocation x y w h
+        this.drawImageFromLocation GlyphLocations.Lines.slurUpImageLocation x y w h
 
     member this.inkFlat x y w h =
-        this.drawImageFromLocation GlyphLocations.flatImageLocation x y w h
+        this.addImage (Glyphs.Accidentals.Flat()) x y
 
     member this.inkNatural x y w h =
-        this.drawImageFromLocation GlyphLocations.naturalImageLocation x y w h
+        this.addImage (Glyphs.Accidentals.Natural()) x y
 
     member this.inkSharp x y w h = 
-        this.drawImageFromLocation GlyphLocations.sharpImageLocation x y w h
+        this.addImage (Glyphs.Accidentals.Sharp()) x y
 
     /// Draw a single ledger line.
     member this.inkLedgerLine x y w =

@@ -41,7 +41,7 @@ let makeWindow width height =
             Width = width,
             Height = height,
             Title = "MusWindow Test",
-            Icon = (DrawingUtils.loadImageFile GlyphLocations.flatImageLocation),
+            Icon = (DrawingUtils.loadImageFile GlyphLocations.Accidentals.flatImageLocation),
             WindowStartupLocation = WindowStartupLocation.CenterScreen
         )
     
