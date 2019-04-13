@@ -105,9 +105,6 @@ let private getAccidentalXBuffer (event:DrawableEvent) =
                 getAlterationWidth a
             | _ ->
                 0.
-        | KeyEvent k ->
-            errMsg "KeyEvent %A unhandled in getAccidentalXBuffer currently" k
-            0.
         | _ ->
             0.
     | _ ->

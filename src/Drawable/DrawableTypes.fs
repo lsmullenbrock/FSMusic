@@ -103,18 +103,10 @@ let createDrawableLedgerLines (measure:DrawableMeasure) (p:DrawableEvent) pitchT
         if pitchTop > mBottom then
             let diff = pitchTop - halfLineSpacing - mBottom
             calcLines diff 1. mBottom
-            //let numLines = diff / measureLineSpacing
-            //[1. .. numLines + 1.]
-            //|> List.map(fun lineNum -> mBottom + lineNum * measureLineSpacing)
-            //|> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
         //Above staff
         else if pitchTop < mTop then
             let diff = mTop + halfLineSpacing - pitchTop
             calcLines diff (-1.) mTop
-            //let numLines = diff / measureLineSpacing
-            //[1. .. numLines - 1.]
-            //|> List.map(fun lineNum -> mTop - lineNum * measureLineSpacing)
-            //|> List.map(fun y -> wrapLedgerLineIntoDrawable p.event x y w)
         //No ledger lines needed
         else
             []

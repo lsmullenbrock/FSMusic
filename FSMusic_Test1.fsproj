@@ -62,8 +62,8 @@
     <Compile Include="src\Resources\MusResources.fs" />
     <Compile Include="src\Resources\GlyphLocations.fs" />
     <Compile Include="src\Resources\FontLocations.fs" />
-    <Compile Include="src\Resources\Fonts.fs" />
     <Compile Include="src\Resources\Glyphs.fs" />
+    <Compile Include="src\Resources\Fonts.fs" />
     <None Include="src\Resources\Glyphs\Rests\half_rest.png" />
     <None Include="src\Resources\Glyphs\Rests\whole_rest.png" />
     <None Include="src\Resources\Glyphs\Rests\quarter_rest.png" />

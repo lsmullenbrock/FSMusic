@@ -9,7 +9,7 @@ open Engraver
 
 /// Helper func to make adding elements easier.
 let addControlsToPanel (panel:#Panel) controlList = 
-    (List.map(fun b -> panel.Children.Add b |> ignore) controlList) 
+    (List.map(panel.Children.Add >> ignore) controlList) 
     |> ignore
 
 //-----------------------------------TESTS---------------------------------------

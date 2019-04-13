@@ -1,7 +1,7 @@
 ﻿module EventID
 
 /// Tracks identity of an Event
-/// @HACK: come up with more robust implementation
+/// @TODO: come up with more robust implementation
 type EventID = EventID of int
     
 /// Default value of 0

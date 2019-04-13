@@ -51,8 +51,7 @@ let private calcSlurGeom measure slur =
     //starting coords
     let x, y =
         drawableTargets
-        |> List.sortBy(fun t -> t.geom.x)
-        |> List.head
+        |> List.minBy(fun t -> t.geom.x)
         |> fun t -> t.geom.x, t.geom.y
 
     //width will be the rightmost, and thus the highest x minus the lowest x
