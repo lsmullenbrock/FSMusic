@@ -77,6 +77,11 @@ type Key =
       alteration: Alteration
       quality: Quality }
 
+let inline createKey root alteration quality =
+    { root = root; alteration = alteration; quality = quality }
+
+let inline getKeyAccidentals key = ()
+
 /// Helper func to generate a Rest.
 let inline createRest value dotted =
     { value = value; dotted = dotted }
@@ -121,9 +126,10 @@ and DependentEvent =
     { dType: DependentEventType
       targets: MeasureEvent list }
 
-/// Helper func
-let inline createMeasureEvent mEvent eID =
-    { mEvent = mEvent; eID = eID }
+/// This function is mandatory for generating new events!
+/// @TODO 
+let createMeasureEvent mEvent =
+    { mEvent = mEvent; eID = EventIDManager.Instance.generateID() }
 
 /// Helper func to convert given item to a IndependentEvent.
 /// Returns an ErrorEvent if type is not wrapable into MeasureEvent.
@@ -145,23 +151,23 @@ let createIndpEvent (item:obj) : MeasureEvent =
             errMsg "%A" msg
             (ErrorEvent msg)
         ) |> IndependentEvent
-    createMeasureEvent event defaultEventID
+    createMeasureEvent event
 
-let inline private createDepEvent dType targets eID =
+let inline private createDepEvent dType targets =
     let event = {dType=dType;targets=targets} |> DependentEvent
-    createMeasureEvent event eID
+    createMeasureEvent event
 
-let inline createLedgerLine target eID =
-    createDepEvent LedgerLine [target] eID
+let inline createLedgerLineEvent target =
+    createDepEvent LedgerLine [target]
 
-let inline createTie origin target eID =
-    createDepEvent Tie [origin; target] eID
+let inline createTieEvent origin target =
+    createDepEvent Tie [origin; target]
 
-let inline createSlur targets eID =
-    createDepEvent Slur targets eID
+let inline createSlurEvent targets =
+    createDepEvent Slur targets
 
-let inline createAccidental target alt eID =
-    createDepEvent (Accidental alt) [target] eID
+let inline createAccidentalEvent target alt =
+    createDepEvent (Accidental alt) [target]
 
 let extractAccidentalFromPitch (p:Pitch) =
     match p.alteration with
@@ -171,7 +177,7 @@ let extractAccidentalFromPitch (p:Pitch) =
         errMsg "In extractAccidentalFromPitch: Attempted to generate Accidental from None from %A" p
         Accidental (Alteration.Natural)
 
-let extractAccidental target eID =
+let extractAccidental target =
     let accidental =
         match target.mEvent with
         | IndependentEvent i ->
@@ -188,12 +194,7 @@ let extractAccidental target eID =
             errMsg "createAccidental called on %A" target.mEvent
             Accidental Alteration.Natural
     //return
-    (createDepEvent accidental [target] eID)
-
-/// Helper func to unbox event into basic type.
-/// Must be careful to properly cast recieving let binding/etc.
-let inline unboxEvent (event:MeasureEvent) = 
-    unbox event
+    (createDepEvent accidental [target])
 
 /// Helper for ClefEvents
 let isClefEvent(event:MeasureEvent) =
@@ -222,12 +223,6 @@ let tryGetClefFromEvent(event:MeasureEvent) =
     //return
     result
 
-/// Helper func for clefs
-let isClef (item:obj) =
-    match item with
-    | :? Clef   -> true
-    | _         -> false
-
 /// Type is meant to be simple/"dumb".
 type Measure = MeasureEvent list
 
@@ -252,16 +247,7 @@ let tryFindFirstClef (measure:Measure) =
             None
 
 /// Adds single event to given measure and assign it a unique ID
-let addEvent (measure:Measure) (event:MeasureEvent) =
-    let id =
-        match List.tryLast measure with
-        | None -> 
-            defaultEventID
-        | Some _ ->
-            EventIDManager.Instance.generateID()
-    event.eID <- id
-    //return
-    measure@[event]
+let inline addEvent (measure:Measure) (event:MeasureEvent) = measure@[event]
 
 /// Adds more than one event to a measure and assigns them all IDs
 let addMultipleEvents measure events = 
@@ -270,7 +256,7 @@ let addMultipleEvents measure events =
 /// Staves are simply Measure lists
 type Staff = Measure list
 /// Add single measure to Staff
-let addMeasure staff measure : Staff = staff@[measure]
+let inline addMeasure staff measure : Staff = staff@[measure]
 /// Add multiple measures to staff
 let addMultipleMeasures staff measures : Staff = List.fold addMeasure staff measures
 /// Calculates interval from C0 (lowest Midi note)

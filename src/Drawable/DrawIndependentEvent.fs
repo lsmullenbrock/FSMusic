@@ -1,6 +1,5 @@
 ﻿module DrawIndependentEvent
 
-open EventID
 open MusicTypes
 open DrawableTypes
 
@@ -113,16 +112,15 @@ let private getAccidentalXBuffer (event:DrawableEvent) =
 /// Attempts to assign x-coords to a DrawableEvent list
 let setIndpEventXCoords (measure:DrawableMeasure) =
     let initialX = measure.geom.x
-    let rec xLoop resultList prevXPos prevWidth kerning (eventList:DrawableEvent list) =
+    let rec xLoop (resultList:DrawableEvent list) prevXPos prevWidth kerning (eventList:DrawableEvent list) =
         match eventList with
         | hd::tl ->
             let newX = 
-                // If the last event has no width, no adjustment/kerning needed
-                (if prevWidth = 0. then prevXPos
-                else prevXPos + prevWidth + kerning)
+                prevXPos
+                + prevWidth
                 + getAccidentalXBuffer hd //add extra buffer if accidental present
-
-            let result = {hd with geom = {hd.geom with x=newX}}
+                + kerning
+            let result = {hd with geom = {hd.geom with x = newX}}
             xLoop (resultList@[result]) result.geom.x result.geom.w kerning tl 
         | _ ->
             resultList
@@ -161,7 +159,7 @@ let private getRestYCoords measureMidpointY (rest:Rest) =
         measureMidpointY
 
 /// Gets KeySig
-/// TODO implement
+/// @TODO implement
 let private getKeySig () = ()
 
 /// Gets clef Y-coords.
@@ -202,14 +200,13 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
             if pY >= measureMidpointY then
                 dEvent.geom.orientation <- UP
             else
-                printfn "measureMidpointY"
                 dEvent.geom.orientation <- DOWN
             //assign ledger lines
             newDependents <- newDependents@(createDrawableLedgerLines measure dEvent pY)
             match p.alteration with
             | Some _ ->
                 let event = 
-                    extractAccidental dEvent.event defaultEventID
+                    extractAccidental dEvent.event
                     |> createDrawableEvent
                 newDependents <- newDependents@[event]
             | _ -> 

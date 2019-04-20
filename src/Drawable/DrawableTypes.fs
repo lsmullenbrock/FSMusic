@@ -81,7 +81,7 @@ let inline createDrawableEvent event = {event=event; geom=defaultGeom}
 
 /// Creates single LedgerLineEvent at given location
 let inline wrapLedgerLineIntoDrawable target x y w =
-    let event = createLedgerLine target defaultEventID
+    let event = createLedgerLineEvent target
     {event=event;geom=createGeom x y w 0. UP}
 
 /// Creates multiple ledger lines and sets their MusGeoms.

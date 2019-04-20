@@ -54,6 +54,7 @@
   <ItemGroup>
     <Content Include="TODO.txt" />
     <None Include="README.md" />
+    <None Include="LICENSE.md" />
     <None Include="App.config" />
     <Content Include="packages.config" />
     <Compile Include="AssemblyInfo.fs" />
@@ -101,6 +102,7 @@
     <Compile Include="src\Engraver\Engraver.fs" />
     <Compile Include="src\MusWindow\MusWindow.fs" />
     <Compile Include="test\Test.fs" />
+    <Compile Include="test\TestWindow.fs" />
     <Compile Include="test\Scratchpad.fs" />
     <Compile Include="main\Main.fs" />
   </ItemGroup>

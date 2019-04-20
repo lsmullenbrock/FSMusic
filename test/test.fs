@@ -5,7 +5,10 @@ open System.Windows
 
 [<Test>]
 let ``test window`` () =
-    let window = MusWindow.makeWindow MusResources.mainWindowWidth MusResources.mainWindowHeight
+    let window = MusWindow.makeDefaultWindow MusResources.mainWindowWidth MusResources.mainWindowHeight
+
+    log "in test"
+    assert false
 
     (new Application()).Run(window)
     |> ignore
