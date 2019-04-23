@@ -74,8 +74,20 @@ type Engraver(canvas:Canvas) =
         this.inker.inkTimeSig (timeSig.numerator) (timeSig.denominator|>int) x y w h
 
     ///@TODO: Implement
-    member private this.engraveKeyEvent geometry keyEvent = 
-        errMsg "Engraver.engraveKeyEvent is not currently implemented"
+    member private this.engraveKeyEvent geometry (key:Key) = 
+        let numAccidentals = getNumAccidentals key
+        let accidentalType = getKeyAccidentalType key
+
+        let buildAccidentals numAccs initY initX clef =
+            let fSharpPosition =
+                match clef with
+                | Treble -> initY
+                | Bass -> initY + MusResources.filledNoteheadHeightDefault
+                | _ ->
+                    errMsg "clef: %A hit in engraveKeyEvent.buildAccidentals()" clef
+                    0.
+            ()
+
         ()
 
     /// Engraves a given clef at a given location

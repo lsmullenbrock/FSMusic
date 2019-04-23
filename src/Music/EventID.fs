@@ -1,7 +1,7 @@
 ﻿module EventID
 
 /// Tracks identity of an Event
-/// @TODO: come up with more robust implementation
+/// Eventually come up with more robust implementation
 type EventID = EventID of int
     
 /// Default value of 0
@@ -11,6 +11,7 @@ let defaultEventID = EventID 0
 type EventIDManager private () =
     /// Localize operations on EventIDs to this class.
     let (+.) (EventID a) (EventID b) = EventID(a + b)
+    static let incrID = EventID 1
     
     /// Initialized to 0
     let mutable currentID = defaultEventID
@@ -21,7 +22,7 @@ type EventIDManager private () =
 
     /// Simply increments IDs for now
     member private __.advanceID () =
-        currentID <- currentID +. (EventID 1)
+        currentID <- currentID +. incrID
 
     /// Return ID and advance to next ID
     member this.generateID () =

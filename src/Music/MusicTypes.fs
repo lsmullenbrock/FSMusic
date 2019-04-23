@@ -28,10 +28,7 @@ type Alteration =
     | Natural   = 0
     | Sharp     = 1
 
-/// Value is NOT considered the same thing as a note's actual time duration.
-/// Value is an Enum, whereas duration is how much time/space the event actually takes.
-/// "Duration" here denotes Value (e.g., Quarter) with some modifier
-/// (e.g., a dot or double dot, which extends its actual played duration).
+/// For pitches/rests
 type Value =
     | SixtyFourth   = 64
     | ThirtySecond  = 32
@@ -72,15 +69,16 @@ type Rest =
       dotted: Dotted }
 
 /// Denotes the actual Key a segment of music is "in".
+/// Clef is needed to be known for proper arrangement of accidentals.
 type Key =
     { root: Note
       alteration: Alteration
-      quality: Quality }
+      quality: Quality
+      clef: Clef }
 
-let inline createKey root alteration quality =
-    { root = root; alteration = alteration; quality = quality }
-
-let inline getKeyAccidentals key = ()
+/// Clef is necessary for proper placement of accidentals in the Engraver.
+let inline createKey root alteration quality clef =
+    { root = root; alteration = alteration; quality = quality; clef = clef }
 
 /// Helper func to generate a Rest.
 let inline createRest value dotted =
@@ -112,13 +110,10 @@ type DependentEventType =
 
 /// Wrapper type so that Pitches, Rests, Clefs and so on can be packed into a Measure together.
 ///
-/// The EventID here is mutable for the irony that it must remain unmutated as it is
-/// passed throughout the alignment pipelines; i.e., object expressions destory the
-/// reference to the original object and thus LineEvents cannot keep track of the
-/// Event's ID.
+/// The EventID here is mutable because it must be assigned later on.
 type MeasureEvent =
     { mEvent: MEvent 
-      mutable eID: EventID }
+      eID: EventID }
 and MEvent =
     | IndependentEvent of IndependentEvent
     | DependentEvent of DependentEvent
@@ -127,7 +122,7 @@ and DependentEvent =
       targets: MeasureEvent list }
 
 /// This function is mandatory for generating new events!
-/// @TODO 
+/// @TODO Possible to find a way to force this as only way to create MeasureEvents?
 let createMeasureEvent mEvent =
     { mEvent = mEvent; eID = EventIDManager.Instance.generateID() }
 
@@ -177,24 +172,66 @@ let extractAccidentalFromPitch (p:Pitch) =
         errMsg "In extractAccidentalFromPitch: Attempted to generate Accidental from None from %A" p
         Accidental (Alteration.Natural)
 
-let extractAccidental target =
+let extractAccidentalFromMeasureEvent target =
     let accidental =
         match target.mEvent with
         | IndependentEvent i ->
             match i with
             | PitchEvent p ->
                 extractAccidentalFromPitch p
-            | KeyEvent k ->
-                errMsg "KeyEvent %A unhandled in createAccidental currently" k
-                Accidental Alteration.Natural
             | _ ->
-                errMsg "createAccidental called on %A" target.mEvent
+                errMsg "extractAccidental called on %A" target.mEvent
                 Accidental Alteration.Natural
         | _ ->
-            errMsg "createAccidental called on %A" target.mEvent
+            errMsg "extractAccidental called on %A" target.mEvent
             Accidental Alteration.Natural
     //return
     (createDepEvent accidental [target])
+
+/// Gets the number of Accidentals (Alterations) in a Key
+/// Negative numbers indicate flats, positive numbers indicate sharps.
+/// Thus, D Major = 2, D minor = -1, etc.
+/// Does not handle double flats or sharps currently, so no Fb major, B# major (etc) as of yet.
+let getNumAccidentals (keySig:Key) =
+    (match keySig.root with
+    | Note.C -> 0
+    | Note.D -> 2
+    | Note.E -> 4
+    | Note.F -> -1
+    | Note.G -> 1
+    | Note.A -> 3
+    | Note.B -> 5
+    | _ -> 
+        errMsg "Unexpecting value hit in match keySig.root in buildDrawableKeysig: %A" keySig.root
+        0 ) 
+    + //continue
+    (match keySig.alteration with
+    | Alteration.Flat -> -7
+    | Alteration.Natural -> 0
+    | Alteration.Sharp -> 7
+    | _ -> 
+        errMsg "Unexpecting value hit in match keySig.alteration in buildDrawableKeysig: %A" keySig.alteration
+        0 )
+    + //continue
+    (match keySig.quality with
+    | Quality.Major -> 0
+    | Quality.Minor -> -3)
+    |> fun n -> //check for too many accidentals
+        if n > 7 || n < -7 then
+            errMsg "Number of sharps/flats exceeds 7 in keysig: %A" keySig
+            errMsg "Returning default of C Major/A minor (0)"
+            //return
+            0
+        else
+            //return
+            n
+
+let getKeyAccidentalType key =
+    let numAccidentals = getNumAccidentals key
+    match numAccidentals with
+    | n when n < 0 -> Alteration.Flat
+    | n when n > 0 -> Alteration.Sharp
+    | _ -> Alteration.Natural
 
 /// Helper for ClefEvents
 let isClefEvent(event:MeasureEvent) =
@@ -280,7 +317,7 @@ let inline interval p1 p2 =
 let defaultRest = createRest Value.Quarter false
 let defaultPitch = createPitch Note.C None 4 Value.Quarter false
 let defaultClef = Clef.Treble
-let defaultKey = { root = Note.C; alteration = Alteration.Natural; quality = Quality.Major }
+let defaultKey = { root = Note.C; alteration = Alteration.Natural; quality = Quality.Major; clef = Treble }
 let defaultTimeSig = createTimeSig 4 Value.Quarter
 
 let defaultRestEvent = createIndpEvent defaultRest

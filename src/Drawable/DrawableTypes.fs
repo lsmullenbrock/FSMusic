@@ -1,7 +1,6 @@
 ﻿module DrawableTypes
 
 open MusicTypes
-open EventID
 
 /// Used for both stem direction as well as slur direction
 type Orientation = UP | DOWN
@@ -69,7 +68,7 @@ let timeSigWidth, timeSigHeight = MusResources.timeSigWidthDefault, MusResources
 let kerning = MusResources.kerning
 
 /// Helper func to create Geometry from x, y, w, h
-let inline createGeom x y w h orientation : MusGeom = {x=x;y=y;w=w;h=h;orientation=orientation}
+let inline createGeom x y w h orientation = {x=x; y=y; w=w; h=h; orientation=orientation}
 
 let inline flipOrientation (geom:MusGeom) = 
     match geom.orientation with

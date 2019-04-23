@@ -28,7 +28,7 @@ let assignRestWidthHeight (rest:Rest) =
     | Value.Whole ->
         wholeRestWidth, wholeRestHeight
     | _ ->
-        log "%A unhandled by createDrawableMeasureEvent currently" rest
+        errMsg "%A unhandled by createDrawableMeasureEvent currently" rest
         0., 0.
 
 /// Assign Clef MusGeom w/h
@@ -158,10 +158,6 @@ let private getRestYCoords measureMidpointY (rest:Rest) =
     | _ -> 
         measureMidpointY
 
-/// Gets KeySig
-/// @TODO implement
-let private getKeySig () = ()
-
 /// Gets clef Y-coords.
 let private getClefYCoords initY clef =
     match clef with
@@ -206,7 +202,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
             match p.alteration with
             | Some _ ->
                 let event = 
-                    extractAccidental dEvent.event
+                    extractAccidentalFromMeasureEvent dEvent.event
                     |> createDrawableEvent
                 newDependents <- newDependents@[event]
             | _ -> 
@@ -218,7 +214,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
         | KeyEvent _ ->
             errMsg "Need to implement KeyEvent assignYCoords in DrawMusic!"
             initY
-        | ClefEvent c -> 
+        | ClefEvent c ->
             checkClefUpdate c
             getClefYCoords initY c
         | TimeSigEvent _ ->
@@ -241,7 +237,7 @@ let setIndpEventYCoords prevClef (measure:DrawableMeasure) =
     
     /// Assign multiple Y Coords to IndependentEvents
     let assignFold initY eventList =
-        List.fold (fun acc elem -> acc@[assignEvent initY elem]) [] eventList
+        List.fold (fun acc elem -> acc@[(assignEvent initY elem)]) [] eventList
 
     //return
     (assignFold initialY measure.dEvents)

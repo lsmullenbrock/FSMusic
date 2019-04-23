@@ -7,7 +7,7 @@ open MusicTypes
 open Engraver
 
 
-/// Helper func to make adding elements easier.
+/// Helper func for adding controls.
 let addControlsToPanel (panel:#Panel) controlList = 
     (List.map(panel.Children.Add >> ignore) controlList) 
     |> ignore
@@ -71,7 +71,6 @@ let makeDefaultWindow width height =
     let defaultMakeBtn = createButton buttonWidth buttonHeight buttonMargin
 
     let clickEvent_testCanvas _ =
-        log "clickEvent_testCanvas clicked"
         test engraver
 
     let drawExerciseButton = defaultMakeBtn "Draw Exercise" (clickEvent_testCanvas) "Generate and Draw new exercise."
@@ -105,19 +104,6 @@ let makeDefaultWindow width height =
 
     let (mainControls:Panel list) = [mainButtonPanel; canvas]
     addControlsToPanel mainPanel mainControls
-
-    //let textBlock = TextBlock(Text="TEST")
-    //textBlock.FontSize <- 50.
-    //textBlock.HorizontalAlignment <- HorizontalAlignment.Stretch
-    //textBlock.VerticalAlignment <- VerticalAlignment.Center
-
-    //Canvas.SetLeft(textBlock, 100.)
-    //Canvas.SetTop(textBlock, 100.)
-    //canvas.Children.Add(textBlock) |> ignore
-    
-    //let grid = Grid()
-    //grid.Children.Add(textBlock) |> ignore
-    //canvas.Children.Add(grid) |> ignore
 
     window.Content <- mainPanel
 
