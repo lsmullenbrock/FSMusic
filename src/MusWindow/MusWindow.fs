@@ -3,6 +3,7 @@
 open System.Windows
 open System.Windows.Controls
 
+open EventTypes
 open MusicTypes
 open Engraver
 

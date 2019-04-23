@@ -3,8 +3,11 @@
 open System.Windows.Controls
 
 open MusicTypes
+open EventTypes
 open DrawableTypes
 open Inker
+
+
 
 /// Engraver makes decisions and tells the Inker what to draw.
 type Engraver(canvas:Canvas) =
@@ -22,7 +25,7 @@ type Engraver(canvas:Canvas) =
 
     /// Draws given pitch. Does not handle beaming.
     member private this.engravePitchEvent geometry (pitch:Pitch) = 
-        let {x=x;y=y;w=w;h=h} = geometry
+        let x, y, w, h = unpackGeom geometry
         match pitch.value with
         | Value.Whole ->
             this.inker.inkWholeNotehead x y w h
@@ -92,7 +95,7 @@ type Engraver(canvas:Canvas) =
 
     /// Engraves a given clef at a given location
     member private this.engraveClefEvent geometry clef =
-        let {x=x;y=y;w=w;h=h} = geometry
+        let x, y, w, h = unpackGeom geometry
         match clef with
         | Treble ->
             this.inker.inkTrebleClef x y w h
@@ -107,7 +110,7 @@ type Engraver(canvas:Canvas) =
 
     /// Engraves a tie
     member private this.engraveTie geometry =
-        let {x=x;y=y;w=w;h=h} = geometry
+        let x, y, w, h = unpackGeom geometry
         match geometry.orientation with
         | UP ->
             this.inker.inkUpTie x y w h
@@ -117,7 +120,7 @@ type Engraver(canvas:Canvas) =
     /// Engraves a slur.
     member private this.engraveSlur geometry =
         //need to transform 
-        let {x=x;y=y;w=w;h=h} = geometry
+        let x, y, w, h = unpackGeom geometry
         match geometry.orientation with
         | UP ->
             this.inker.inkUpSlur x y w h
@@ -175,7 +178,7 @@ type Engraver(canvas:Canvas) =
 
     /// Draws given DrawableMeasure to given canvas, but does not draw any events.
     member this.engraveMeasure (dMeasure:DrawableMeasure) =
-        let {x=x;y=y;h=h;w=w} = dMeasure.geom
+        let x, y, w, h = unpackGeom dMeasure.geom
         this.inker.inkMeasure x y w h
 
     /// Draws a DrawableMeasure and its contents to a given Canvas.

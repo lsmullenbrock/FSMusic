@@ -1,6 +1,7 @@
 ﻿module DrawIndependentEvent
 
 open MusicTypes
+open EventTypes
 open DrawableTypes
 
 (*
@@ -49,7 +50,7 @@ let assignKeyWidthHeight (k:Key) =
 
 /// Default for ErrorEvents is 0.0/0.0 w/h
 let assignErrorWidthHeight (e:MusError) =
-    errMsg "Error encountered! Error message: %A" (e.ToString())
+    errMsg "ErrorEvent hit in DrawIndependentEvent.assignErrorWidthHeight -> Error message: %A" (e.ToString())
     0., 0.
 
 /// Sets Width/Height properties of given IndependentEvent

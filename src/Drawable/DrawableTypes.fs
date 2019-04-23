@@ -1,6 +1,6 @@
 ﻿module DrawableTypes
 
-open MusicTypes
+open EventTypes
 
 /// Used for both stem direction as well as slur direction
 type Orientation = UP | DOWN

@@ -1,6 +1,7 @@
 ﻿module DrawDependentEvent
 
 open MusicTypes
+open EventTypes
 open DrawableTypes
 
 (*

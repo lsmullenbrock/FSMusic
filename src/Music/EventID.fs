@@ -4,15 +4,15 @@
 /// Eventually come up with more robust implementation
 type EventID = EventID of int
     
-/// Default value of 0
-let defaultEventID = EventID 0
-
 /// Singleton to generate IDs for Events
 type EventIDManager private () =
     /// Localize operations on EventIDs to this class.
     let (+.) (EventID a) (EventID b) = EventID(a + b)
     static let incrID = EventID 1
     
+    /// Default value of 0
+    let defaultEventID = EventID 0
+
     /// Initialized to 0
     let mutable currentID = defaultEventID
 

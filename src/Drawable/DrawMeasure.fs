@@ -1,7 +1,7 @@
 ﻿module DrawMeasure
 
 open DrawableTypes
-open MusicTypes
+open EventTypes
 open DrawIndependentEvent
 open DrawDependentEvent
 

@@ -2,6 +2,7 @@
 
 open DrawableTypes
 open MusicTypes
+open EventTypes
 open DrawMeasure
 
 /// Ensures given Staff is not empty or is malformed, etc.

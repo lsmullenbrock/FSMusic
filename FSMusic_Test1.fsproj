@@ -92,6 +92,7 @@
     <None Include="src\Resources\Fonts\Default\zero_default.png" />
     <Compile Include="src\Music\EventID.fs" />
     <Compile Include="src\Music\MusicTypes.fs" />
+    <Compile Include="src\Music\EventTypes.fs" />
     <Compile Include="src\Drawable\DrawableTypes.fs" />
     <Compile Include="src\Drawable\DrawIndependentEvent.fs" />
     <Compile Include="src\Drawable\DrawDependentEvent.fs" />
