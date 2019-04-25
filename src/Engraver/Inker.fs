@@ -13,12 +13,12 @@ type Inker(canvas:Canvas) =
         canvas.Children.Clear()
 
     /// Adds a UIElement to given Canvas.
-    member inline private __.addElementToCanvas (elem:#UIElement) =
+    member private __.addElementToCanvas (elem:#UIElement) =
         canvas.Children.Add(elem)
         |> ignore
 
     /// Adds a UIElement at a given location    
-    member inline private this.addElemAtLocation (elem:#UIElement) x y =
+    member private this.addElemAtLocation (elem:#UIElement) x y =
         Canvas.SetLeft(elem, x)
         Canvas.SetTop(elem, y)
         this.addElementToCanvas elem
@@ -31,8 +31,6 @@ type Inker(canvas:Canvas) =
         textBlock.FontSize <- h
         textBlock.MaxHeight <- h
         textBlock.BaselineOffset <- 0.
-        //textBlock.Height <- h
-        //textBlock.Width <- w
         this.addElemAtLocation textBlock x y
 
     /// Simply adds given Image to given Canvas
@@ -203,9 +201,6 @@ type Inker(canvas:Canvas) =
         let numerImage = Fonter.getDigitImage n
         let denomImage = Fonter.getDigitImage d
 
-        this.addImage (numerImage()) x y
-        this.addImage (denomImage()) x (y+h) 
+        this.addImage numerImage x y
+        this.addImage denomImage x (y+h) 
         
-        //this.writeTextToCanvas n x y w h
-        //this.writeTextToCanvas d x (y+h) w h
-

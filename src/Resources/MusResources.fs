@@ -6,7 +6,7 @@ let mainWindowWidth = 1024.
 let mainWindowHeight = 720.
 
 [<Literal>]
-let SIZE_MULTIPLIER = 0.5
+let SIZE_MULTIPLIER = 1.
 
 //padding
 let leftPadding, rightPadding = mainWindowHeight/20., mainWindowHeight/20.

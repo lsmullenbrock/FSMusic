@@ -1,14 +1,13 @@
 ﻿module Main
 open System
-open MusWindow
 open System.Windows
 
 [<EntryPoint;STAThread>]
 let main _ = 
 
-    let window = makeDefaultWindow MusResources.mainWindowWidth MusResources.mainWindowHeight
+    //let window = makeDefaultWindow MusResources.mainWindowWidth MusResources.mainWindowHeight
 
-    (new Application()).Run(window)
+    (new Application()).Run(MainWindow.mainWindow)
     |> ignore
 
     //return

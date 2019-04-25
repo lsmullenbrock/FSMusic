@@ -43,9 +43,7 @@ let private calcTieGeom measure tie =
 let private calcSlurGeom measure slur =
     let drawableTargets =
         slur.targets
-        |> List.map(fun t -> t.eID)
-        |> List.sort //just in case
-        |> List.map(fun e -> findEventByID measure e)
+        |> List.map(fun t -> findEventByID measure t.eID)
 
     //individually figure out each coord
     //lowest eID will be the leftmost and thus have the correct

@@ -7,8 +7,6 @@ open EventTypes
 open DrawableTypes
 open Inker
 
-
-
 /// Engraver makes decisions and tells the Inker what to draw.
 type Engraver(canvas:Canvas) =
     static let unpackGeom geom = geom.x, geom.y, geom.w, geom.h
@@ -21,7 +19,8 @@ type Engraver(canvas:Canvas) =
     member private __.dotSize = MusResources.dotSizeDefault
 
     /// Calls inker.clearCanvas()
-    member this.clearCanvas () = this.inker.clearCanvas()
+    member this.clearCanvas () = 
+        this.inker.clearCanvas()
 
     /// Draws given pitch. Does not handle beaming.
     member private this.engravePitchEvent geometry (pitch:Pitch) = 

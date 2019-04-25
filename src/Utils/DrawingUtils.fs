@@ -9,7 +9,7 @@ open System.Windows.Controls
 open System.Windows.Media.Imaging
 
 /// Loads image from file if it exists or the url otherwise
-let inline loadImageFile file =
+let loadImageFile file =
     //let path = Path.Combine(ImageLocations.imageLocDir, file)
     if File.Exists(file) then
         log "Loading image located at %A" file
@@ -20,7 +20,7 @@ let inline loadImageFile file =
         new BitmapImage()
 
 /// Helper function to create a Line object.
-let inline createLine x1 y1 x2 y2 =
+let createLine x1 y1 x2 y2 =
     new Line(
         X1 = x1,
         Y1 = y1,
@@ -31,7 +31,7 @@ let inline createLine x1 y1 x2 y2 =
     )
 
 /// Converts specified bitmap to an image
-let inline convertFileToImage (bitmap:#BitmapSource) w h =
+let convertFileToImage (bitmap:#BitmapSource) w h =
     new Image(
         Source = bitmap, 
         Stretch = Stretch.Fill, 
@@ -40,5 +40,5 @@ let inline convertFileToImage (bitmap:#BitmapSource) w h =
     )
 
 /// Given a file location, will attempt to create an image.
-let inline createImage file w h =
+let createImage file w h =
     convertFileToImage (loadImageFile file) w h

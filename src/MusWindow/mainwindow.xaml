@@ -1,0 +1,23 @@
+﻿<Window 
+    xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Width="1024"
+    Height="720"
+    >
+    <StackPanel>
+        <Menu>
+            <MenuItem Header="_File">
+                <MenuItem x:Name="menuItemExit" Header="_Exit"/>
+            </MenuItem>
+            <MenuItem Header="_Help">
+                <MenuItem x:Name="menuItemAbout" Header="About"/>
+            </MenuItem>
+        </Menu>
+        <DockPanel HorizontalAlignment="Left">
+            <Button x:Name="buttonDrawDemo" Content="Draw Demo" Margin="5" Width="100" ToolTip="Draws built-in demo to canvas."/>
+            <Button x:Name="buttonClearCanvas" Content="Clear Canvas" Margin="5" Width="100" ToolTip="Clears demo."/>
+            <Button x:Name="buttonCallGC" Content="Call GC" Margin="5" Width="100" ToolTip="Calls garbage collector, in case of high memory usage."/>
+        </DockPanel>
+        <Canvas x:Name="mainCanvas"/>
+    </StackPanel>
+</Window>
