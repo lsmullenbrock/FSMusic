@@ -18,8 +18,7 @@
     <Name>FSMusic_Test1</Name>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
-    <ReferencePath>
-    </ReferencePath>
+    <ReferencePath>C:\Users\Lee\Programming\F#\FSMusic\FSMusic_Test1\src\Resources\</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,7 +30,7 @@
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\$(Configuration)\$(AssemblyName).XML</DocumentationFile>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -67,36 +66,38 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="src\Utils\Basic.fs" />
     <Compile Include="src\Utils\DrawingUtils.fs" />
+    <EmbeddedResource Include="src\Resources\Glyphs.resx" />
+    <EmbeddedResource Include="src\Resources\Fonts.resx" />
     <Compile Include="src\Resources\MusResources.fs" />
     <Compile Include="src\Resources\GlyphLocations.fs" />
     <Compile Include="src\Resources\FontLocations.fs" />
     <Compile Include="src\Resources\Glyphs.fs" />
     <Compile Include="src\Resources\Fonts.fs" />
-    <None Include="src\Resources\Glyphs\Rests\half_rest.png" />
-    <None Include="src\Resources\Glyphs\Rests\whole_rest.png" />
-    <None Include="src\Resources\Glyphs\Rests\quarter_rest.png" />
-    <None Include="src\Resources\Glyphs\Rests\eighth_rest.png" />
-    <None Include="src\Resources\Glyphs\Noteheads\filled_notehead.png" />
-    <None Include="src\Resources\Glyphs\Noteheads\open_notehead.png" />
-    <None Include="src\Resources\Glyphs\Noteheads\whole_note.png" />
-    <None Include="src\Resources\Glyphs\Accidentals\flat.png" />
-    <None Include="src\Resources\Glyphs\Accidentals\natural.png" />
-    <None Include="src\Resources\Glyphs\Accidentals\sharp.png" />
-    <None Include="src\Resources\Glyphs\Clefs\treble_clef.png" />
-    <None Include="src\Resources\Glyphs\Clefs\bass_clef.png" />
-    <None Include="src\Resources\Glyphs\Lines\slur_down.png" />
-    <None Include="src\Resources\Glyphs\Lines\slur_up.png" />
-    <None Include="src\Resources\Fonts\Default\nine_default.png" />
-    <None Include="src\Resources\Fonts\Default\eight_default.png" />
-    <None Include="src\Resources\Fonts\Default\six_default.png" />
-    <None Include="src\Resources\Fonts\Default\seven_default.png" />
-    <None Include="src\Resources\Fonts\Default\five_default.png" />
-    <None Include="src\Resources\Fonts\Default\four_default.png" />
-    <None Include="src\Resources\Fonts\Default\three_default.png" />
-    <None Include="src\Resources\Fonts\Default\two_default.png" />
-    <None Include="src\Resources\Fonts\Default\one_default_right_justified.png" />
-    <None Include="src\Resources\Fonts\Default\one_default_centered.png" />
-    <None Include="src\Resources\Fonts\Default\zero_default.png" />
+    <Resource Include="src\Resources\Glyphs\Rests\half_rest.png" />
+    <Resource Include="src\Resources\Glyphs\Rests\whole_rest.png" />
+    <Resource Include="src\Resources\Glyphs\Rests\quarter_rest.png" />
+    <Resource Include="src\Resources\Glyphs\Rests\eighth_rest.png" />
+    <Resource Include="src\Resources\Glyphs\Noteheads\filled_notehead.png" />
+    <Resource Include="src\Resources\Glyphs\Noteheads\open_notehead.png" />
+    <Resource Include="src\Resources\Glyphs\Noteheads\whole_note.png" />
+    <Resource Include="src\Resources\Glyphs\Accidentals\flat.png" />
+    <Resource Include="src\Resources\Glyphs\Accidentals\natural.png" />
+    <Resource Include="src\Resources\Glyphs\Accidentals\sharp.png" />
+    <Resource Include="src\Resources\Glyphs\Clefs\treble_clef.png" />
+    <Resource Include="src\Resources\Glyphs\Clefs\bass_clef.png" />
+    <Resource Include="src\Resources\Glyphs\Lines\slur_down.png" />
+    <Resource Include="src\Resources\Glyphs\Lines\slur_up.png" />
+    <Resource Include="src\Resources\Fonts\Default\nine_default.png" />
+    <Resource Include="src\Resources\Fonts\Default\eight_default.png" />
+    <Resource Include="src\Resources\Fonts\Default\six_default.png" />
+    <Resource Include="src\Resources\Fonts\Default\seven_default.png" />
+    <Resource Include="src\Resources\Fonts\Default\five_default.png" />
+    <Resource Include="src\Resources\Fonts\Default\four_default.png" />
+    <Resource Include="src\Resources\Fonts\Default\three_default.png" />
+    <Resource Include="src\Resources\Fonts\Default\two_default.png" />
+    <Resource Include="src\Resources\Fonts\Default\one_default_right_justified.png" />
+    <Resource Include="src\Resources\Fonts\Default\one_default_centered.png" />
+    <Resource Include="src\Resources\Fonts\Default\zero_default.png" />
     <Compile Include="src\Music\EventID.fs" />
     <Compile Include="src\Music\MusicTypes.fs" />
     <Compile Include="src\Music\EventTypes.fs" />
@@ -108,9 +109,11 @@
     <Compile Include="src\Engraver\Fonter.fs" />
     <Compile Include="src\Engraver\Inker.fs" />
     <Compile Include="src\Engraver\Engraver.fs" />
-    <Resource Include="src\MusWindow\mainwindow.xaml" />
-    <Compile Include="src\MusWindow\MainWindowEvents.fs" />
-    <Compile Include="src\MusWindow\MainWindow.fs" />
+    <Resource Include="src\view\AboutWindow\aboutwindow.xaml" />
+    <Compile Include="src\view\AboutWindow\AboutWindow.fs" />
+    <Resource Include="src\view\MainWindow\mainwindow.xaml" />
+    <Compile Include="src\view\MainWindow\MainWindowEvents.fs" />
+    <Compile Include="src\view\MainWindow\MainWindow.fs" />
     <Compile Include="test\Test.fs" />
     <Compile Include="test\Scratchpad.fs" />
     <Compile Include="main\Main.fs" />
@@ -127,6 +130,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Numerics" />
     <Reference Include="System.ValueTuple">
       <HintPath>packages\System.ValueTuple.4.4.0\lib\net461\System.ValueTuple.dll</HintPath>

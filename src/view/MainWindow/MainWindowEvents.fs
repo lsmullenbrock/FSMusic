@@ -45,12 +45,9 @@ let clickEvent_clear (engraver:Engraver) _ =
 
 let clickEvent_testCanvas (engraver:Engraver) _ =
     test engraver
+    System.GC.WaitForPendingFinalizers()
+    System.GC.Collect()
 
 let clickEvent_close (window:Window) _ = 
     window.Close()
 
-let clickEvent_GC _ =
-    for _ in [1..10] do
-        System.GC.Collect()
-        System.GC.WaitForPendingFinalizers()
-    log "GC.Collect() x 10"

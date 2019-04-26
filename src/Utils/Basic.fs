@@ -17,4 +17,3 @@ type MusError = string
 let inline ordinal (e: 'a when 'a : enum<'b> and 'a : equality) =
     let values = Enum.GetValues(e.GetType())
     Array.IndexOf(values, e) + 1
-

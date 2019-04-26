@@ -19,9 +19,10 @@ type Inker(canvas:Canvas) =
 
     /// Adds a UIElement at a given location    
     member private this.addElemAtLocation (elem:#UIElement) x y =
+        this.addElementToCanvas elem
+        Canvas.SetZIndex(elem, 1)
         Canvas.SetLeft(elem, x)
         Canvas.SetTop(elem, y)
-        this.addElementToCanvas elem
     
     /// Add a TextBlock to canvas at given location.
     /// @TODO does not work properly, troubleshoot offsetting
@@ -35,6 +36,7 @@ type Inker(canvas:Canvas) =
 
     /// Simply adds given Image to given Canvas
     member private this.addImage (image:#Image) x y =
+        printfn "image info - iamge: %A; w: %A; h: %A; x: %A; y: %A" image image.Width image.Height x y
         this.addElemAtLocation image x y
 
     /// Given a file location, attempt to draw it to a canvas.

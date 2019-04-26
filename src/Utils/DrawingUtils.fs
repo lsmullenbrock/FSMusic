@@ -13,7 +13,7 @@ let loadImageFile file =
     //let path = Path.Combine(ImageLocations.imageLocDir, file)
     if File.Exists(file) then
         log "Loading image located at %A" file
-        new BitmapImage(Uri(file, UriKind.Relative))
+        BitmapImage(Uri(file, UriKind.Absolute))        
     else
         errMsg "Image located at '%A' was not found and could not be loaded" file
         errMsg "Returning empty BitmapImage"
