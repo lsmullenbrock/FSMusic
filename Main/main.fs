@@ -5,7 +5,7 @@ open System.Windows
 [<EntryPoint;STAThread>]
 let main _ = 
 
-    (new Application()).Run(MainWindow.mainWindow)
+    (new Application()).Run(MainWindow.getMainWindow())
     |> ignore
 
     //return

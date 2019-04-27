@@ -1,20 +1,13 @@
 ﻿module MainWindowEvents
 
 open System.Windows
-open System.Windows.Controls
 
 open EventTypes
 open MusicTypes
 open Engraver
 
-
-/// Helper func for adding controls.
-let addControlsToPanel (panel:#Panel) controlList = 
-    (List.map(panel.Children.Add >> ignore) controlList) 
-    |> ignore
-
 //-----------------------------------TESTS---------------------------------------
-let test (engraver:Engraver) =
+let private test (engraver:Engraver) =
     engraver.clearCanvas()
 
     let e0 = createIndpEvent Treble
@@ -36,8 +29,8 @@ let test (engraver:Engraver) =
     engraver.engraveStaff staff1
 //-------------------------------------------------------------------------------
 
-let clickEvent_help _ =
-    AboutWindow.getAboutWindow().ShowDialog()
+let clickEvent_about (aboutWindow:unit->Window) _ =
+    aboutWindow().ShowDialog()
     |> ignore
 
 let clickEvent_clear (engraver:Engraver) _ = 

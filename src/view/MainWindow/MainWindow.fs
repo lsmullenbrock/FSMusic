@@ -8,30 +8,34 @@ open System.Windows.Controls
 open Engraver
 open MainWindowEvents
 
-let XAMLFile = __SOURCE_DIRECTORY__ + "/mainwindow.xaml"
-let mainWindowXAML = File.ReadAllText(XAMLFile)
-
-let mainWindow = XamlReader.Parse(mainWindowXAML) :?> Window
+[<Literal>]
+let private XAMLFile = __SOURCE_DIRECTORY__ + "/mainwindow.xaml"
+let private mainWindowXAML = File.ReadAllText(XAMLFile)
 
 // Find way to implement the following:
 //let inline findControl controlName castToType =
 //    mainWindow.FindName(controlName) :?> castToType
 
-mainWindow.Icon <- DrawingUtils.loadImageFile(GlyphLocations.Accidentals.flatImageLocation)
+let getMainWindow () = 
+    let mainWindow = XamlReader.Parse(mainWindowXAML) :?> Window
 
-let mainCanvas = mainWindow.FindName("mainCanvas") :?> Canvas
+    mainWindow.Icon <- DrawingUtils.loadImageFile(GlyphLocations.Accidentals.flatImageLocation)
 
-let engraver = Engraver(mainCanvas)
+    let mainCanvas = mainWindow.FindName("mainCanvas") :?> Canvas
 
-let buttonDrawDemo = mainWindow.FindName("buttonDrawDemo") :?> Button
-buttonDrawDemo.Click.Add (clickEvent_testCanvas engraver)
+    let engraver = Engraver(mainCanvas)
 
-let buttonClearCanvas = mainWindow.FindName("buttonClearCanvas") :?> Button
-buttonClearCanvas.Click.Add (clickEvent_clear engraver)
+    let buttonDrawDemo = mainWindow.FindName("buttonDrawDemo") :?> Button
+    buttonDrawDemo.Click.Add (clickEvent_testCanvas engraver)
 
-let menuItemExit = mainWindow.FindName("menuItemExit") :?> MenuItem
-menuItemExit.Click.Add (clickEvent_close mainWindow)
+    let buttonClearCanvas = mainWindow.FindName("buttonClearCanvas") :?> Button
+    buttonClearCanvas.Click.Add (clickEvent_clear engraver)
 
-let menuItemAbout = mainWindow.FindName("menuItemAbout") :?> MenuItem
-menuItemAbout.Click.Add (clickEvent_help)
+    let menuItemExit = mainWindow.FindName("menuItemExit") :?> MenuItem
+    menuItemExit.Click.Add (clickEvent_close mainWindow)
 
+    let menuItemAbout = mainWindow.FindName("menuItemAbout") :?> MenuItem
+    menuItemAbout.Click.Add (clickEvent_about(AboutWindow.getAboutWindow))
+
+    //return
+    mainWindow
