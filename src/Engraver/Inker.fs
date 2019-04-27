@@ -36,7 +36,6 @@ type Inker(canvas:Canvas) =
 
     /// Simply adds given Image to given Canvas
     member private this.addImage (image:#Image) x y =
-        printfn "image info - iamge: %A; w: %A; h: %A; x: %A; y: %A" image image.Width image.Height x y
         this.addElemAtLocation image x y
 
     /// Given a file location, attempt to draw it to a canvas.
@@ -158,7 +157,7 @@ type Inker(canvas:Canvas) =
         image.RenderTransform <- transform
         image.Width <- newWidth
         image.Height <- h
-        printfn "angle: %A, w: %A, newWidth: %A, h: %A, x: %A, newY: %A" angle w newWidth h x newY
+        //printfn "angle: %A, w: %A, newWidth: %A, h: %A, x: %A, newY: %A" angle w newWidth h x newY
         this.addImage image newX newY
 
     /// Inks a slur facing down.

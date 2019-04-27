@@ -36,8 +36,8 @@ let test (engraver:Engraver) =
     engraver.engraveStaff staff1
 //-------------------------------------------------------------------------------
 
-let clickEvent_help _ = 
-    AboutWindow.aboutWindow.ShowDialog()
+let clickEvent_help _ =
+    AboutWindow.getAboutWindow().ShowDialog()
     |> ignore
 
 let clickEvent_clear (engraver:Engraver) _ = 
