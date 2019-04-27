@@ -4,7 +4,6 @@ open System.IO
 open System.Windows
 open System.Windows.Markup
 open System.Windows.Controls
-open System.Windows.Media
 
 open Engraver
 open MainWindowEvents
@@ -14,7 +13,7 @@ let mainWindowXAML = File.ReadAllText(XAMLFile)
 
 let mainWindow = XamlReader.Parse(mainWindowXAML) :?> Window
 
-//why can't i do this?
+// Find way to implement the following:
 //let inline findControl controlName castToType =
 //    mainWindow.FindName(controlName) :?> castToType
 

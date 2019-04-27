@@ -75,7 +75,7 @@ type Engraver(canvas:Canvas) =
         let y = geometry.y
         this.inker.inkTimeSig (timeSig.numerator) (timeSig.denominator|>int) x y w h
 
-    ///@TODO: Implement
+    ///@TODO: Finish implementing.
     member private this.engraveKeyEvent geometry (key:Key) = 
         let numAccidentals = getNumAccidentals key
         let accidentalType = getKeyAccidentalType key

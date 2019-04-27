@@ -59,6 +59,7 @@
   </Target>
   <ItemGroup>
     <Content Include="TODO.txt" />
+    <None Include="LICENSE" />
     <None Include="README.md" />
     <None Include="App.config" />
     <Content Include="packages.config" />
@@ -116,7 +117,6 @@
     <Compile Include="src\view\MainWindow\MainWindowEvents.fs" />
     <Compile Include="src\view\MainWindow\MainWindow.fs" />
     <Compile Include="test\Test.fs" />
-    <Compile Include="test\Scratchpad.fs" />
     <Compile Include="main\Main.fs" />
   </ItemGroup>
   <ItemGroup>
