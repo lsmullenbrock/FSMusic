@@ -1,7 +1,9 @@
 ﻿[<RequireQualifiedAccess>]
 module Glyphs
 
+
 let inline private createImg i = DrawingUtils.createImage i
+
 
 //pitches
 let private wholeNoteWidth, wholeNoteHeight = MusResources.wholeNoteheadWidthDefault, MusResources.wholeNoteheadHeightDefault

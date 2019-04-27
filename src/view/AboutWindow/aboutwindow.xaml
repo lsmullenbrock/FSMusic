@@ -1,13 +1,10 @@
 ﻿<Window 
     xmlns='http://schemas.microsoft.com/winfx/2006/xaml/presentation' 
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:System="clr-namespace:System;assembly=mscorlib" x:Name="aboutWindow"
     Title="About"
-    Width="600"
-    Height="400" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" >
+    Width="400"
+    Height="200" WindowStartupLocation="CenterOwner" ShowInTaskbar="False" >
     <DockPanel>
-        <TextBox>
-            Toy music engraver
-        </TextBox>
+        <TextBox x:Name="textBoxAbout" TextWrapping="Wrap"/>
     </DockPanel>
-
 </Window>

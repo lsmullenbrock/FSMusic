@@ -37,7 +37,7 @@ let test (engraver:Engraver) =
 //-------------------------------------------------------------------------------
 
 let clickEvent_help _ = 
-    MessageBox.Show("Click the Draw Exercise button to draw notes.")
+    AboutWindow.aboutWindow.ShowDialog()
     |> ignore
 
 let clickEvent_clear (engraver:Engraver) _ = 
@@ -45,8 +45,10 @@ let clickEvent_clear (engraver:Engraver) _ =
 
 let clickEvent_testCanvas (engraver:Engraver) _ =
     test engraver
-    System.GC.WaitForPendingFinalizers()
-    System.GC.Collect()
+    //necessary for huge image mem usage
+    for _ in [1..10] do
+        System.GC.WaitForPendingFinalizers()
+        System.GC.Collect()
 
 let clickEvent_close (window:Window) _ = 
     window.Close()

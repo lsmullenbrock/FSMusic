@@ -19,6 +19,7 @@ let loadImageFile file =
         errMsg "Returning empty BitmapImage"
         new BitmapImage()
 
+
 /// Helper function to create a Line object.
 let createLine x1 y1 x2 y2 =
     new Line(
