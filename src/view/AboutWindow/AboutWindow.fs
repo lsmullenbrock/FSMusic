@@ -1,14 +1,14 @@
 ﻿[<RequireQualifiedAccess>]
 module AboutWindow
 
-open System.IO
 open System.Windows
-open System.Windows.Controls
-open System.Windows.Markup
+open FsXaml
+
 
 [<Literal>]
-let private XAMLFile = __SOURCE_DIRECTORY__ + "/aboutwindow.xaml"
-let private aboutWindowXAML = File.ReadAllText(XAMLFile)
+let private XAMLFile = "src/view/AboutWindow/aboutwindow.xaml"
+
+type private AboutWindow = XAML<XAMLFile>
 
 /// Exception thrown when using TextResources.resx upon aboutWindow.ShowDialog(). Will have to look into it.
 [<Literal>]
@@ -18,9 +18,8 @@ Toy music engraver. Meant merely as a demo for right now and under heavy develop
 
 /// Generates the About Window
 let getAboutWindow () =
-    let aboutWindow = XamlReader.Parse(aboutWindowXAML) :?> Window
+    let aboutWindow = AboutWindow()
     aboutWindow.Icon <- DrawingUtils.loadImageFile(GlyphLocations.Clefs.trebleClefLocation)
-    let textBoxAbout = aboutWindow.FindName("textBoxAbout") :?> TextBox
-    textBoxAbout.Text <- aboutText
+    aboutWindow.textBoxAbout.Text <- aboutText
     //return
-    aboutWindow
+    aboutWindow :> Window
